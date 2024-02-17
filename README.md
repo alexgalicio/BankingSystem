@@ -15,7 +15,8 @@
   * Search account
   * Edit account
   * Delete account
- 
+
+* Transactions
 * Transaction Logs
 
  
