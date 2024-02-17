@@ -157,10 +157,10 @@ public class LogIn extends javax.swing.JFrame {
 
             // For regular users: check whether the user has provided an account number or username for login
             String sql;
-            if (identifier.matches("\\d+")) {
-                sql = "SELECT * FROM sign_up WHERE account_number = ? AND password = ?";
+            if (identifier.matches("\\d+")) {   // BINARY - forces a comparison for an exact case-sensitive match.
+                sql = "SELECT * FROM sign_up WHERE account_number = ? AND BINARY password = ?";
             } else {
-                sql = "SELECT * FROM sign_up WHERE username = ? AND password = ?";
+                sql = "SELECT * FROM sign_up WHERE BINARY username = ? AND BINARY password = ?";
             }
 
             PreparedStatement pst = conn.prepareStatement(sql);
@@ -173,28 +173,6 @@ public class LogIn extends javax.swing.JFrame {
                 txt_username.setText("");
                 txt_password.setText("");
             } else {
-
-//                final JOptionPane optionPane = new JOptionPane("You are now login. You will soon be redirected", JOptionPane.PLAIN_MESSAGE, JOptionPane.DEFAULT_OPTION, null, new Object[]{}, null);
-//                optionPane.setBackground(Color.YELLOW);
-//                final JDialog dialog = new JDialog();
-//                dialog.setModal(true);
-//                dialog.setContentPane(optionPane);
-//                dialog.setUndecorated(true);
-//                dialog.pack();
-//                // Center the dialog on the screen
-//                Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
-//                int x = (int) ((dimension.getWidth() - dialog.getWidth()) / 2);
-//                int y = (int) ((dimension.getHeight() - dialog.getHeight()) / 2);
-//                dialog.setLocation(x, y);
-//                Timer timer = new Timer(3000, new AbstractAction() {
-//                    @Override
-//                    public void actionPerformed(ActionEvent ae) {
-//                        dialog.dispose();
-//                    }
-//                });
-//                timer.setRepeats(false);
-//                timer.start();
-//                dialog.setVisible(true);
                 int account_number = rs.getInt("account_number");
                 double balance = rs.getDouble("account_balance");
                 String firstName = rs.getString("first_name");
@@ -231,7 +209,7 @@ public class LogIn extends javax.swing.JFrame {
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new SplashScreen(null, true).setVisible(true);
+//                new SplashScreen(null, true).setVisible(true);
                 new LogIn().setVisible(true);
             }
         });

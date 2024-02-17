@@ -25,8 +25,8 @@ public class MenuAdmin extends javax.swing.JPanel {
         listMenu1.addItem(new ModelMenu("dashboard", "Dashboard", ModelMenu.MenuType.MENU));
         listMenu1.addItem(new ModelMenu("add", "Manage Account", ModelMenu.MenuType.MENU));
         listMenu1.addItem(new ModelMenu("manage", "New Accounts", ModelMenu.MenuType.MENU));
+        listMenu1.addItem(new ModelMenu("transaction", "Transactions", ModelMenu.MenuType.MENU));
         listMenu1.addItem(new ModelMenu("logs", "Transaction Logs", ModelMenu.MenuType.MENU));
-        listMenu1.addItem(new ModelMenu("", "", ModelMenu.MenuType.EMPTY));
         listMenu1.addItem(new ModelMenu("", "", ModelMenu.MenuType.EMPTY));
         listMenu1.addItem(new ModelMenu("", "", ModelMenu.MenuType.EMPTY));
         listMenu1.addItem(new ModelMenu("", "", ModelMenu.MenuType.EMPTY));

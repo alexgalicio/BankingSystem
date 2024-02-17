@@ -9,17 +9,17 @@ import java.awt.RenderingHints;
 import javax.swing.JTextField;
 
 public class TextField extends JTextField {
-
+    
     public String getHint() {
         return hint;
     }
-
+    
     public void setHint(String hint) {
         this.hint = hint;
     }
-
+    
     private String hint = "";
-
+    
     public TextField() {
         setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 10, 5, 10));
     }
@@ -29,14 +29,15 @@ public class TextField extends JTextField {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (isFocusOwner()) {
-            g.setColor(new Color(11, 87, 208));
+//            g.setColor(new Color(11, 87, 208));
+            g.setColor(Color.BLACK);
             g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
         } else {
             g.setColor(new Color(207, 207, 207));
             g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
         }
     }
-
+    
     @Override
     public void paint(Graphics g) {
         super.paint(g);

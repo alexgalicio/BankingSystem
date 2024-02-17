@@ -28,7 +28,8 @@ public class PasswordField extends JPasswordField {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (isFocusOwner()) {
-            g.setColor(new Color(11, 87, 208));
+//            g.setColor(new Color(11, 87, 208));
+            g.setColor(Color.BLACK);
             g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
         } else {
             g.setColor(new Color(207, 207, 207));

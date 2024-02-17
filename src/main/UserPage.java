@@ -16,13 +16,14 @@ import javax.swing.JPasswordField;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 
 public class UserPage extends javax.swing.JFrame {
 
     private final DatabaseConnection dc = new DatabaseConnection();
     private PreparedStatement pst, pst1, pst2, pst3, pst4, pst5;
     private ResultSet rs;
-    public static UserMenu userMenu;
+//    public static UserMenu userMenu;
     private DefaultTableModel tableModel;
     private final double feePercentage = 0.05;
 
@@ -36,24 +37,13 @@ public class UserPage extends javax.swing.JFrame {
         tableModel.addColumn("Date");
         tableModel.addColumn("Amount");
         tableModel.addColumn("Type");
+        tableModel.addColumn("Reference #");
         jTable1.setModel(tableModel);
+        
+        TableColumn column = jTable1.getColumnModel().getColumn(0);
+        column.setPreferredWidth(120);
+        
         jTable1.setDefaultEditor(Object.class, null); // disable editing of cells
-
-        jTable1.setDefaultRenderer(Double.class, new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                Component cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                String amountString = (String) table.getValueAt(row, 1);
-                double amount = Double.parseDouble(amountString);
-                if (amount > 0) {
-                    cell.setForeground(new Color(32, 178, 170)); // green if add money
-                } else {
-                    cell.setForeground(new Color(214, 37, 84)); // red if not
-                }
-                return cell;
-            }
-        });
-
         loadTransactionHistory();
 
         menu1.addEventMenuSelected((int index) -> {
@@ -120,6 +110,7 @@ public class UserPage extends javax.swing.JFrame {
                 String timestamp = rs.getString("transaction_date");
                 double amount = rs.getDouble("transaction_amount");
                 String type = rs.getString("transaction_type");
+                String referenceNum = rs.getString("reference_num");
 
                 String formattedAmount;
                 if (type.equals("DEPOSIT") || type.equals("RECEIVED")) {
@@ -128,7 +119,7 @@ public class UserPage extends javax.swing.JFrame {
                     formattedAmount = "-";
                 }
                 formattedAmount += String.format("%.2f", Math.abs(amount));
-                Object[] row = {timestamp, formattedAmount, type};
+                Object[] row = {timestamp, formattedAmount, type, referenceNum};
 
 //                jTable1.getColumnModel().getColumn(1).setCellRenderer(new AmountCellRenderer());
                 jTable1.getTableHeader().setReorderingAllowed(false);
@@ -165,15 +156,14 @@ public class UserPage extends javax.swing.JFrame {
     }
 
     // display transaction details
-    private void setTransacDetails(String type, Double amount, Double balance, Double fee, String timestamp, String transactionNumber) {
-//        lbl_type.setText(type);
-//        lbl_amount.setText("PHP " + String.format("%.2f", amount));
-//        lbl_fee.setText("PHP " + String.format("%.2f", fee));
-//        lbl_totalBalance.setText("PHP " + String.format("%.2f", balance));
-//        lbl_date.setText(String.valueOf(timestamp));
-//        lbl_transactionNumber.setText(transactionNumber);
-//
-//        showForm(pnl_transacDetails);
+    private void setTransacDetails(String type, Double amount, Double fee, String timestamp, String transactionNumber) {
+        lbl_message.setText(type);
+        lbl_amount.setText("PHP " + String.format("%.2f", amount));
+        lbl_fee.setText("PHP " + String.format("%.2f", fee));
+        lbl_dateTime.setText(String.valueOf(timestamp));
+        lbl_refNo.setText(transactionNumber);
+
+        showForm(pnl_receipt);
     }
 
     @SuppressWarnings("unchecked")
@@ -206,7 +196,7 @@ public class UserPage extends javax.swing.JFrame {
         jLabel17 = new javax.swing.JLabel();
         lbl_balance2 = new javax.swing.JLabel();
         pnl_transfer = new javax.swing.JPanel();
-        button5 = new swing.Button();
+        btn_transfer = new swing.Button();
         jLabel18 = new javax.swing.JLabel();
         txt_destinationAccNum = new swing.TextField();
         jLabel19 = new javax.swing.JLabel();
@@ -274,7 +264,17 @@ public class UserPage extends javax.swing.JFrame {
         txt_currPass = new swing.PasswordField();
         txt_newPass = new swing.PasswordField();
         txt_conPass = new swing.PasswordField();
-        jPanel5 = new javax.swing.JPanel();
+        pnl_receipt = new javax.swing.JPanel();
+        panelRound3 = new swing.PanelRound();
+        jLabel36 = new javax.swing.JLabel();
+        lbl_dateTime = new javax.swing.JLabel();
+        jLabel38 = new javax.swing.JLabel();
+        lbl_fee = new javax.swing.JLabel();
+        jLabel40 = new javax.swing.JLabel();
+        lbl_amount = new javax.swing.JLabel();
+        jLabel42 = new javax.swing.JLabel();
+        lbl_message = new javax.swing.JLabel();
+        lbl_refNo = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
@@ -357,8 +357,19 @@ public class UserPage extends javax.swing.JFrame {
             new String [] {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(jTable1);
+        if (jTable1.getColumnModel().getColumnCount() > 0) {
+            jTable1.getColumnModel().getColumn(0).setPreferredWidth(100);
+        }
 
         javax.swing.GroupLayout pnl_dashboardLayout = new javax.swing.GroupLayout(pnl_dashboard);
         pnl_dashboard.setLayout(pnl_dashboardLayout);
@@ -507,13 +518,13 @@ public class UserPage extends javax.swing.JFrame {
 
         pnl_transfer.setBackground(new java.awt.Color(255, 255, 255));
 
-        button5.setBackground(new java.awt.Color(0, 0, 0));
-        button5.setForeground(new java.awt.Color(255, 255, 255));
-        button5.setText("Transfer");
-        button5.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        button5.addActionListener(new java.awt.event.ActionListener() {
+        btn_transfer.setBackground(new java.awt.Color(0, 0, 0));
+        btn_transfer.setForeground(new java.awt.Color(255, 255, 255));
+        btn_transfer.setText("Transfer");
+        btn_transfer.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btn_transfer.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button5ActionPerformed(evt);
+                btn_transferActionPerformed(evt);
             }
         });
 
@@ -521,9 +532,9 @@ public class UserPage extends javax.swing.JFrame {
         jLabel18.setText("Transfer");
 
         txt_destinationAccNum.setHint("Account number");
-        txt_destinationAccNum.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                txt_destinationAccNumFocusLost(evt);
+        txt_destinationAccNum.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txt_destinationAccNumKeyReleased(evt);
             }
         });
 
@@ -560,21 +571,21 @@ public class UserPage extends javax.swing.JFrame {
                             .addGroup(pnl_transferLayout.createSequentialGroup()
                                 .addGroup(pnl_transferLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(pnl_transferLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                        .addComponent(button5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(btn_transfer, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                         .addComponent(txt_destinationAccNum, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE)
                                         .addComponent(txt_transferAmount, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE))
                                     .addComponent(jLabel20))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addGroup(pnl_transferLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txt_destinationName, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE)
                                     .addGroup(pnl_transferLayout.createSequentialGroup()
-                                        .addComponent(jLabel21)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .addGroup(pnl_transferLayout.createSequentialGroup()
-                                        .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(lbl_balance3)
-                                        .addGap(0, 160, Short.MAX_VALUE))
-                                    .addComponent(txt_destinationName, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE))))
+                                        .addGroup(pnl_transferLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel21)
+                                            .addGroup(pnl_transferLayout.createSequentialGroup()
+                                                .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(lbl_balance3)))
+                                        .addGap(0, 160, Short.MAX_VALUE)))))
                         .addGap(57, 57, 57))
                     .addGroup(pnl_transferLayout.createSequentialGroup()
                         .addGroup(pnl_transferLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -587,7 +598,7 @@ public class UserPage extends javax.swing.JFrame {
             .addGroup(pnl_transferLayout.createSequentialGroup()
                 .addGap(29, 29, 29)
                 .addComponent(jLabel18)
-                .addGap(26, 26, 26)
+                .addGap(30, 30, 30)
                 .addGroup(pnl_transferLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel20)
                     .addComponent(jLabel21))
@@ -604,8 +615,8 @@ public class UserPage extends javax.swing.JFrame {
                     .addComponent(lbl_balance3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel34)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 216, Short.MAX_VALUE)
-                .addComponent(button5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 212, Short.MAX_VALUE)
+                .addComponent(btn_transfer, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(42, 42, 42))
         );
 
@@ -654,7 +665,7 @@ public class UserPage extends javax.swing.JFrame {
                         .addComponent(txt_CAN, javax.swing.GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
                         .addComponent(jLabel23)
                         .addComponent(btn_payElectric, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap(323, Short.MAX_VALUE))
+                .addContainerGap(466, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -669,9 +680,9 @@ public class UserPage extends javax.swing.JFrame {
                 .addComponent(txt_electricAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel29)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 224, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 212, Short.MAX_VALUE)
                 .addComponent(btn_payElectric, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(40, 40, 40))
+                .addGap(52, 52, 52))
         );
 
         jScrollPane3.setViewportView(jPanel2);
@@ -740,7 +751,7 @@ public class UserPage extends javax.swing.JFrame {
                 .addComponent(txt_waterAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel28)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 144, Short.MAX_VALUE)
+                .addGap(132, 132, 132)
                 .addComponent(btn_payWater, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(40, 40, 40))
         );
@@ -809,7 +820,7 @@ public class UserPage extends javax.swing.JFrame {
                 .addComponent(txt_wifiAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel33)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 144, Short.MAX_VALUE)
+                .addGap(132, 132, 132)
                 .addComponent(btn_payWifi, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(40, 40, 40))
         );
@@ -820,11 +831,13 @@ public class UserPage extends javax.swing.JFrame {
         pnl_bills.setLayout(pnl_billsLayout);
         pnl_billsLayout.setHorizontalGroup(
             pnl_billsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabbed2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(tabbed2, javax.swing.GroupLayout.DEFAULT_SIZE, 619, Short.MAX_VALUE)
         );
         pnl_billsLayout.setVerticalGroup(
             pnl_billsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabbed2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnl_billsLayout.createSequentialGroup()
+                .addGap(0, 16, Short.MAX_VALUE)
+                .addComponent(tabbed2, javax.swing.GroupLayout.PREFERRED_SIZE, 522, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         body.add(pnl_bills, "card2");
@@ -915,7 +928,7 @@ public class UserPage extends javax.swing.JFrame {
                             .addComponent(jLabel10)
                             .addComponent(txt_province, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(btn_saveChanges, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(60, Short.MAX_VALUE))
+                .addContainerGap(203, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -928,15 +941,15 @@ public class UserPage extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txt_firstName, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txt_lastName, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel5)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txt_email, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txt_streetAddress, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel8))
@@ -944,7 +957,7 @@ public class UserPage extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txt_zip, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txt_brgy, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel9)
                     .addComponent(jLabel10))
@@ -952,9 +965,9 @@ public class UserPage extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txt_city, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txt_province, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(42, 42, 42)
+                .addGap(41, 41, 41)
                 .addComponent(btn_saveChanges, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(51, Short.MAX_VALUE))
+                .addGap(36, 36, 36))
         );
 
         jScrollPane2.setViewportView(jPanel1);
@@ -1023,9 +1036,9 @@ public class UserPage extends javax.swing.JFrame {
                 .addComponent(jLabel13)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txt_conPass, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 177, Short.MAX_VALUE)
+                .addGap(152, 152, 152)
                 .addComponent(btn_resetPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(27, 27, 27))
+                .addGap(35, 35, 35))
         );
 
         tabbed1.addTab("Password and Security", jPanel3);
@@ -1034,29 +1047,118 @@ public class UserPage extends javax.swing.JFrame {
         pnl_settings.setLayout(pnl_settingsLayout);
         pnl_settingsLayout.setHorizontalGroup(
             pnl_settingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabbed1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(tabbed1, javax.swing.GroupLayout.DEFAULT_SIZE, 619, Short.MAX_VALUE)
         );
         pnl_settingsLayout.setVerticalGroup(
             pnl_settingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabbed1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 538, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnl_settingsLayout.createSequentialGroup()
+                .addGap(16, 16, 16)
+                .addComponent(tabbed1, javax.swing.GroupLayout.PREFERRED_SIZE, 522, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         body.add(pnl_settings, "card3");
 
-        jPanel5.setBackground(new java.awt.Color(255, 255, 255));
+        pnl_receipt.setBackground(new java.awt.Color(255, 255, 255));
 
-        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
-        jPanel5.setLayout(jPanel5Layout);
-        jPanel5Layout.setHorizontalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 619, Short.MAX_VALUE)
+        panelRound3.setBackground(new java.awt.Color(248, 249, 250));
+
+        jLabel36.setText("Ref No. ");
+
+        lbl_dateTime.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lbl_dateTime.setText("2024-02-16 10:05:12");
+
+        jLabel38.setText("Convenience Fee");
+
+        lbl_fee.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lbl_fee.setText("PHP 0000");
+
+        jLabel40.setText("Amount");
+
+        lbl_amount.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lbl_amount.setText("PHP 000000");
+
+        jLabel42.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/check.png"))); // NOI18N
+
+        lbl_message.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lbl_message.setText("Successfully sent to NAME NAME NAME");
+
+        lbl_refNo.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lbl_refNo.setText("OOP580724");
+
+        javax.swing.GroupLayout panelRound3Layout = new javax.swing.GroupLayout(panelRound3);
+        panelRound3.setLayout(panelRound3Layout);
+        panelRound3Layout.setHorizontalGroup(
+            panelRound3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelRound3Layout.createSequentialGroup()
+                .addGap(70, 70, 70)
+                .addGroup(panelRound3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelRound3Layout.createSequentialGroup()
+                        .addComponent(jLabel36)
+                        .addGap(2, 2, 2)
+                        .addComponent(lbl_refNo)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(lbl_dateTime))
+                    .addGroup(panelRound3Layout.createSequentialGroup()
+                        .addGroup(panelRound3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel38)
+                            .addComponent(jLabel40))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(panelRound3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lbl_fee, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(lbl_amount, javax.swing.GroupLayout.Alignment.TRAILING))))
+                .addGap(70, 70, 70))
+            .addGroup(panelRound3Layout.createSequentialGroup()
+                .addGap(116, 116, 116)
+                .addGroup(panelRound3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRound3Layout.createSequentialGroup()
+                        .addComponent(jLabel42)
+                        .addGap(116, 116, 116))
+                    .addGroup(panelRound3Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(lbl_message)
+                        .addContainerGap(103, Short.MAX_VALUE))))
         );
-        jPanel5Layout.setVerticalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 538, Short.MAX_VALUE)
+        panelRound3Layout.setVerticalGroup(
+            panelRound3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelRound3Layout.createSequentialGroup()
+                .addGap(35, 35, 35)
+                .addComponent(jLabel42)
+                .addGap(18, 18, 18)
+                .addComponent(lbl_message)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
+                .addGroup(panelRound3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel40)
+                    .addComponent(lbl_amount))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(panelRound3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel38)
+                    .addComponent(lbl_fee))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(panelRound3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel36)
+                    .addComponent(lbl_dateTime)
+                    .addComponent(lbl_refNo))
+                .addGap(55, 55, 55))
         );
 
-        body.add(jPanel5, "card4");
+        javax.swing.GroupLayout pnl_receiptLayout = new javax.swing.GroupLayout(pnl_receipt);
+        pnl_receipt.setLayout(pnl_receiptLayout);
+        pnl_receiptLayout.setHorizontalGroup(
+            pnl_receiptLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnl_receiptLayout.createSequentialGroup()
+                .addContainerGap(87, Short.MAX_VALUE)
+                .addComponent(panelRound3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(86, Short.MAX_VALUE))
+        );
+        pnl_receiptLayout.setVerticalGroup(
+            pnl_receiptLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnl_receiptLayout.createSequentialGroup()
+                .addGap(57, 57, 57)
+                .addComponent(panelRound3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(57, Short.MAX_VALUE))
+        );
+
+        body.add(pnl_receipt, "card4");
 
         javax.swing.GroupLayout jpanel2Layout = new javax.swing.GroupLayout(jpanel2);
         jpanel2.setLayout(jpanel2Layout);
@@ -1146,13 +1248,13 @@ public class UserPage extends javax.swing.JFrame {
                     loadTransactionHistory();
                     JOptionPane.showMessageDialog(null, "Deposit Successful.");
                     txt_depositAmount.setText("");
-                    setTransacDetails("Deposit Successful", depositAmount, newBalance, 0.0, timestamp, referenceID);
+                    setTransacDetails("Deposit Successful", depositAmount, 0.0, timestamp, referenceID);
                 }
             } catch (SQLException e) {
                 JOptionPane.showMessageDialog(null, e);
             }
         } catch (SQLException | ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(UserMenu.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(UserPage.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btn_depositActionPerformed
 
@@ -1215,10 +1317,10 @@ public class UserPage extends javax.swing.JFrame {
                                     pst2.setDouble(6, 0);
                                     pst2.execute();
 
-                                    JOptionPane.showMessageDialog(null, "Withdraw Successful.");
                                     loadTransactionHistory();
+                                    JOptionPane.showMessageDialog(null, "Withdraw Successful.");
                                     txt_withdrawAmount.setText("");
-                                    setTransacDetails("Withdraw Successful", withdrawAmount, newBalance, 0.0, timestamp, referenceID);
+                                    setTransacDetails("Withdraw Successful", withdrawAmount, 0.0, timestamp, referenceID);
                                 } catch (SQLException e) {
                                     JOptionPane.showMessageDialog(null, e);
                                 }
@@ -1230,11 +1332,11 @@ public class UserPage extends javax.swing.JFrame {
                 }
             }
         } catch (SQLException | ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(UserMenu.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(UserPage.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btn_withdrawActionPerformed
 
-    private void button5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button5ActionPerformed
+    private void btn_transferActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_transferActionPerformed
         try {
             String timestamp = getCurrentTimestamp();
             String sourceAccount = lbl_accNum.getText();
@@ -1319,7 +1421,7 @@ public class UserPage extends javax.swing.JFrame {
                     txt_transferAmount.setText("");
                     txt_destinationName.setText("");
                     setTransacDetails("Successfully sent to " + destinationName,
-                            transferAmount, newBalance, convenienceFee, timestamp, referenceID);
+                            transferAmount, convenienceFee, timestamp, referenceID);
                 } else {
                     JOptionPane.showMessageDialog(null, "Transfer amount must be between PHP 100 and PHP " + (currentBalance - convenienceFee) + " (including convenience fee).");
                     txt_transferAmount.setText("");
@@ -1328,35 +1430,9 @@ public class UserPage extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(null, "Error retrieving balance information.");
             }
         } catch (SQLException | ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(UserMenu.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(UserPage.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_button5ActionPerformed
-
-    private void txt_destinationAccNumFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txt_destinationAccNumFocusLost
-        String accountNumber = txt_destinationAccNum.getText();
-
-        if (!accountNumber.isEmpty()) {
-            try {
-                String sql = "SELECT first_name, last_name FROM sign_up WHERE account_number=?";
-                try (Connection conn = dc.getConnection()) {
-                    pst = conn.prepareStatement(sql);
-                    pst.setString(1, accountNumber);
-                    rs = pst.executeQuery();
-
-                    if (rs.next()) {
-                        String firstName = rs.getString("first_name");
-                        String lastName = rs.getString("last_name");
-                        String fullName = firstName + " " + lastName;
-                        txt_destinationName.setText(fullName);
-                    } else {
-                        txt_destinationName.setText("Not Found");
-                    }
-                }
-            } catch (SQLException | ClassNotFoundException ex) {
-                java.util.logging.Logger.getLogger(UserMenu.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }//GEN-LAST:event_txt_destinationAccNumFocusLost
+    }//GEN-LAST:event_btn_transferActionPerformed
 
     private void btn_payElectricActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_payElectricActionPerformed
         String timestamp = getCurrentTimestamp();
@@ -1414,7 +1490,7 @@ public class UserPage extends javax.swing.JFrame {
                             loadTransactionHistory();
                             txt_electricAmount.setText("");
                             txt_CAN.setText("");
-                            setTransacDetails("Payment Successful", amountPay, newBalance, convenienceFee, timestamp, referenceID);
+                            setTransacDetails("Payment Successful", amountPay, convenienceFee, timestamp, referenceID);
                         } catch (SQLException e) {
                             JOptionPane.showMessageDialog(null, e);
                         }
@@ -1427,7 +1503,7 @@ public class UserPage extends javax.swing.JFrame {
                 }
             }
         } catch (SQLException | ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(UserMenu.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(UserPage.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btn_payElectricActionPerformed
 
@@ -1495,7 +1571,7 @@ public class UserPage extends javax.swing.JFrame {
                             txt_waterAccNum.setText("");
                             txt_waterName.setText("");
 
-                            setTransacDetails("Payment Successful", amountPay, newBalance, convenienceFee, timestamp, referenceID);
+                            setTransacDetails("Payment Successful", amountPay, convenienceFee, timestamp, referenceID);
                         } catch (SQLException e) {
                             JOptionPane.showMessageDialog(null, e);
                         }
@@ -1508,7 +1584,7 @@ public class UserPage extends javax.swing.JFrame {
                 }
             }
         } catch (SQLException | ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(UserMenu.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(UserPage.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btn_payWaterActionPerformed
 
@@ -1575,7 +1651,7 @@ public class UserPage extends javax.swing.JFrame {
                             txt_wifiAmount.setText("");
                             txt_wifiAccNum.setText("");
                             txt_wifiName.setText("");
-                            setTransacDetails("Payment Successful", amountPay, newBalance, convenienceFee, timestamp, referenceID);
+                            setTransacDetails("Payment Successful", amountPay, convenienceFee, timestamp, referenceID);
                         } catch (SQLException e) {
                             JOptionPane.showMessageDialog(null, e);
                         }
@@ -1588,7 +1664,7 @@ public class UserPage extends javax.swing.JFrame {
                 }
             }
         } catch (SQLException | ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(UserMenu.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(UserPage.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btn_payWifiActionPerformed
 
@@ -1630,7 +1706,7 @@ public class UserPage extends javax.swing.JFrame {
             lbl_greet.setText("Hello, " + firstName);
 
         } catch (SQLException | ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(UserMenu.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(UserPage.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btn_saveChangesActionPerformed
 
@@ -1668,6 +1744,32 @@ public class UserPage extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btn_resetPasswordActionPerformed
 
+    private void txt_destinationAccNumKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_destinationAccNumKeyReleased
+        String accountNumber = txt_destinationAccNum.getText();
+
+        if (!accountNumber.isEmpty()) {
+            try {
+                String sql = "SELECT first_name, last_name FROM sign_up WHERE account_number=?";
+                try (Connection conn = dc.getConnection()) {
+                    pst = conn.prepareStatement(sql);
+                    pst.setString(1, accountNumber);
+                    rs = pst.executeQuery();
+
+                    if (rs.next()) {
+                        String firstName = rs.getString("first_name");
+                        String lastName = rs.getString("last_name");
+                        String fullName = firstName + " " + lastName;
+                        txt_destinationName.setText(fullName);
+                    } else {
+                        txt_destinationName.setText("Not Found");
+                    }
+                }
+            } catch (SQLException | ClassNotFoundException ex) {
+                java.util.logging.Logger.getLogger(UserPage.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_txt_destinationAccNumKeyReleased
+
     public static void main(String args[]) {
 
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -1685,8 +1787,8 @@ public class UserPage extends javax.swing.JFrame {
     private swing.Button btn_payWifi;
     private swing.Button btn_resetPassword;
     private swing.Button btn_saveChanges;
+    private swing.Button btn_transfer;
     private swing.Button btn_withdraw;
-    private swing.Button button5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -1715,7 +1817,11 @@ public class UserPage extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel32;
     private javax.swing.JLabel jLabel33;
     private javax.swing.JLabel jLabel34;
+    private javax.swing.JLabel jLabel36;
+    private javax.swing.JLabel jLabel38;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel40;
+    private javax.swing.JLabel jLabel42;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
@@ -1725,7 +1831,6 @@ public class UserPage extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -1733,17 +1838,24 @@ public class UserPage extends javax.swing.JFrame {
     private javax.swing.JTable jTable1;
     private javax.swing.JPanel jpanel2;
     private javax.swing.JLabel lbl_accNum;
+    private javax.swing.JLabel lbl_amount;
     private javax.swing.JLabel lbl_balance;
     private javax.swing.JLabel lbl_balance1;
     private javax.swing.JLabel lbl_balance2;
     private javax.swing.JLabel lbl_balance3;
+    private javax.swing.JLabel lbl_dateTime;
+    private javax.swing.JLabel lbl_fee;
     private javax.swing.JLabel lbl_greet;
+    private javax.swing.JLabel lbl_message;
+    private javax.swing.JLabel lbl_refNo;
     private swing.menu.Menu menu1;
     private swing.PanelRound panelRound1;
     private swing.PanelRound panelRound2;
+    private swing.PanelRound panelRound3;
     private javax.swing.JPanel pnl_bills;
     private javax.swing.JPanel pnl_dashboard;
     private javax.swing.JPanel pnl_deposit;
+    private javax.swing.JPanel pnl_receipt;
     private javax.swing.JPanel pnl_settings;
     private javax.swing.JPanel pnl_transfer;
     private javax.swing.JPanel pnl_withdraw;
