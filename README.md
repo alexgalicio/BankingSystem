@@ -49,11 +49,11 @@
 
 | Manage Accounts  | New Account |
 | ------------- | ------------- |
-| ![](./screenshots/manageAccount.png)  | ![](./screenshots/newAccount.png)  |
+| ![](./screenshots/manageAcc.png)  | ![](./screenshots/newAcc.png)  |
 
 | Edit Account  | Delete Account |
 | ------------- | ------------- |
-| ![](./screenshots/editAccount.png)  | ![](./screenshots/deleteAccount.png)  |
+| ![](./screenshots/editAcc.png)  | ![](./screenshots/deleteAcc.png)  |
 
 | Transactions  | Transaction Logs |
 | ------------- | ------------- |
