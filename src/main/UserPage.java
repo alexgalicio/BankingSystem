@@ -31,6 +31,8 @@ public class UserPage extends javax.swing.JFrame {
         initComponents();
         init();
     }
+    
+    
 
     private void init() {
         tableModel = new DefaultTableModel();

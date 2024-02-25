@@ -1,19 +1,12 @@
 package main;
 
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.HeadlessException;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import javax.swing.AbstractAction;
-import javax.swing.JDialog;
 import javax.swing.JOptionPane;
-import javax.swing.Timer;
 import javax.swing.UIManager;
 
 public class LogIn extends javax.swing.JFrame {
@@ -209,7 +202,7 @@ public class LogIn extends javax.swing.JFrame {
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-//                new SplashScreen(null, true).setVisible(true);
+                new SplashScreen(null, true).setVisible(true);
                 new LogIn().setVisible(true);
             }
         });
