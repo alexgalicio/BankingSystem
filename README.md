@@ -26,17 +26,17 @@
   * Transfer
   * Bill Payment
 
-### Screenshots
+## Screenshots
 | Splash Screen  | Login |
 | ------------- | ------------- |
 | ![](./screenshots/splashScreen.png)  | ![](./screenshots/logIn.png)  |
 
 
-| signUp  | User Page |
+| Sign Up  | User Page |
 | ------------- | ------------- |
 | ![](./screenshots/signUp.png)  | ![](./screenshots/dashboardUser.png)  |
 
-| Deposit  | Witdraw |
+| Deposit  | Withdraw |
 | ------------- | ------------- |
 | ![](./screenshots/deposit.png)  | ![](./screenshots/withdraw.png)  |
 
@@ -54,4 +54,4 @@
 
 | Transaction  | Transaction Logs |
 | ------------- | ------------- |
-| ![](./screenshots/transactions.png)  | ![](./screenshots/transationLogs.png)  |
+| ![](./screenshots/transactions.png)  | ![](./screenshots/transactionLogs.png)  |
