@@ -19,8 +19,6 @@
 * Transactions
 * Transaction Logs
 
- 
- 
 ### User
 * Transactions
   * Deposit
@@ -31,14 +29,29 @@
 ### Screenshots
 | Splash Screen  | Login |
 | ------------- | ------------- |
-| ![] ./screenshots/splashScreen.png  | ./screenshots/logIn.png  |
+| ![](./screenshots/splashScreen.png)  | ![](./screenshots/logIn.png)  |
+
 
 | signUp  | User Page |
 | ------------- | ------------- |
-| ![] ./screenshots/signUp.png  | ./screenshots/dashboardUser.png  |
+| ![](./screenshots/signUp.png)  | ![](./screenshots/dashboardUser.png)  |
 
-| signUp  | User Page |
+| Deposit  | Witdraw |
 | ------------- | ------------- |
-| ![] ./screenshots/signUp.png  | ./screenshots/dashboardUser.png  |
+| ![](./screenshots/deposit.png)  | ![](./screenshots/withdraw.png)  |
 
- 
+| Transfer  | Pay Bills |
+| ------------- | ------------- |
+| ![](./screenshots/transfer.png)  | ![](./screenshots/payBills.png)  |
+
+| Settings  | Admin Page |
+| ------------- | ------------- |
+| ![](./screenshots/settings.png)  | ![](./screenshots/dashboardAdmin.png)  |
+
+| Manage Account  | New Account |
+| ------------- | ------------- |
+| ![](./screenshots/manageAccount.png)  | ![](./screenshots/newAccount.png)  |
+
+| Transaction  | Transaction Logs |
+| ------------- | ------------- |
+| ![](./screenshots/transactions.png)  | ![](./screenshots/transationLogs.png)  |
