@@ -53,7 +53,7 @@
 
 | Edit Account  | Delete Account |
 | ------------- | ------------- |
-| ![](./screenshots/manageAccount.png)  | ![](./screenshots/newAccount.png)  |
+| ![](./screenshots/editAccount.png)  | ![](./screenshots/deleteAccount.png)  |
 
 | Transactions  | Transaction Logs |
 | ------------- | ------------- |

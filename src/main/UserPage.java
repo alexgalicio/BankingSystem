@@ -1,6 +1,5 @@
 package main;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.HeadlessException;
 import java.sql.Connection;
@@ -13,8 +12,6 @@ import java.util.Random;
 import java.util.logging.Level;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
@@ -31,8 +28,6 @@ public class UserPage extends javax.swing.JFrame {
         initComponents();
         init();
     }
-    
-    
 
     private void init() {
         tableModel = new DefaultTableModel();
@@ -41,10 +36,10 @@ public class UserPage extends javax.swing.JFrame {
         tableModel.addColumn("Type");
         tableModel.addColumn("Reference #");
         jTable1.setModel(tableModel);
-        
+
         TableColumn column = jTable1.getColumnModel().getColumn(0);
         column.setPreferredWidth(120);
-        
+
         jTable1.setDefaultEditor(Object.class, null); // disable editing of cells
         loadTransactionHistory();
 
@@ -110,7 +105,9 @@ public class UserPage extends javax.swing.JFrame {
 
             while (rs.next()) {
                 String timestamp = rs.getString("transaction_date");
-                double amount = rs.getDouble("transaction_amount");
+                double transactionAmount = rs.getDouble("transaction_amount");
+                double transactionFee = rs.getDouble("transaction_fee");
+                double amount = transactionAmount + transactionFee;
                 String type = rs.getString("transaction_type");
                 String referenceNum = rs.getString("reference_num");
 
@@ -187,56 +184,56 @@ public class UserPage extends javax.swing.JFrame {
         jTable1 = new javax.swing.JTable();
         pnl_deposit = new javax.swing.JPanel();
         jLabel14 = new javax.swing.JLabel();
-        txt_depositAmount = new swing.TextField();
         jLabel15 = new javax.swing.JLabel();
         lbl_balance1 = new javax.swing.JLabel();
         btn_deposit = new swing.Button();
+        txt_depositAmount = new swing.NumericTextField();
         pnl_withdraw = new javax.swing.JPanel();
         btn_withdraw = new swing.Button();
         jLabel16 = new javax.swing.JLabel();
-        txt_withdrawAmount = new swing.TextField();
         jLabel17 = new javax.swing.JLabel();
         lbl_balance2 = new javax.swing.JLabel();
+        txt_withdrawAmount = new swing.NumericTextField();
         pnl_transfer = new javax.swing.JPanel();
         btn_transfer = new swing.Button();
         jLabel18 = new javax.swing.JLabel();
-        txt_destinationAccNum = new swing.TextField();
         jLabel19 = new javax.swing.JLabel();
         lbl_balance3 = new javax.swing.JLabel();
-        txt_transferAmount = new swing.TextField();
         txt_destinationName = new swing.TextField();
         jLabel20 = new javax.swing.JLabel();
         jLabel21 = new javax.swing.JLabel();
         jLabel22 = new javax.swing.JLabel();
         jLabel34 = new javax.swing.JLabel();
+        txt_transferAmount = new swing.NumericTextField();
+        txt_destinationAccNum = new swing.NumericTextField();
         pnl_bills = new javax.swing.JPanel();
         tabbed2 = new swing.Tabbed();
         jScrollPane3 = new javax.swing.JScrollPane();
         jPanel2 = new javax.swing.JPanel();
         jLabel23 = new javax.swing.JLabel();
-        txt_CAN = new swing.TextField();
-        txt_electricAmount = new swing.TextField();
         jLabel24 = new javax.swing.JLabel();
         btn_payElectric = new swing.Button();
         jLabel29 = new javax.swing.JLabel();
+        txt_electricAmount = new swing.NumericTextField();
+        txt_CAN = new swing.NumericTextField();
         jPanel4 = new javax.swing.JPanel();
         jLabel25 = new javax.swing.JLabel();
-        txt_waterAccNum = new swing.TextField();
         jLabel26 = new javax.swing.JLabel();
-        txt_waterAmount = new swing.TextField();
         btn_payWater = new swing.Button();
         txt_waterName = new swing.TextField();
         jLabel27 = new javax.swing.JLabel();
         jLabel28 = new javax.swing.JLabel();
+        txt_waterAmount = new swing.NumericTextField();
+        txt_waterAccNum = new swing.NumericTextField();
         jPanel6 = new javax.swing.JPanel();
         jLabel30 = new javax.swing.JLabel();
-        txt_wifiAccNum = new swing.TextField();
         jLabel31 = new javax.swing.JLabel();
         txt_wifiName = new swing.TextField();
         jLabel32 = new javax.swing.JLabel();
-        txt_wifiAmount = new swing.TextField();
         jLabel33 = new javax.swing.JLabel();
         btn_payWifi = new swing.Button();
+        txt_wifiAmount = new swing.NumericTextField();
+        txt_wifiAccNum = new swing.NumericTextField();
         pnl_settings = new javax.swing.JPanel();
         tabbed1 = new swing.Tabbed();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -409,8 +406,6 @@ public class UserPage extends javax.swing.JFrame {
         jLabel14.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel14.setText("Deposit");
 
-        txt_depositAmount.setHint("PHP 0.00");
-
         jLabel15.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel15.setText("Balance");
 
@@ -426,6 +421,8 @@ public class UserPage extends javax.swing.JFrame {
             }
         });
 
+        txt_depositAmount.setHint("PHP 0.00");
+
         javax.swing.GroupLayout pnl_depositLayout = new javax.swing.GroupLayout(pnl_deposit);
         pnl_deposit.setLayout(pnl_depositLayout);
         pnl_depositLayout.setHorizontalGroup(
@@ -436,8 +433,8 @@ public class UserPage extends javax.swing.JFrame {
                     .addComponent(jLabel14)
                     .addGroup(pnl_depositLayout.createSequentialGroup()
                         .addGroup(pnl_depositLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(btn_deposit, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(txt_depositAmount, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE))
+                            .addComponent(txt_depositAmount, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE)
+                            .addComponent(btn_deposit, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -451,9 +448,9 @@ public class UserPage extends javax.swing.JFrame {
                 .addComponent(jLabel14)
                 .addGap(30, 30, 30)
                 .addGroup(pnl_depositLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txt_depositAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel15)
-                    .addComponent(lbl_balance1))
+                    .addComponent(lbl_balance1)
+                    .addComponent(txt_depositAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 332, Short.MAX_VALUE)
                 .addComponent(btn_deposit, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(42, 42, 42))
@@ -476,12 +473,12 @@ public class UserPage extends javax.swing.JFrame {
         jLabel16.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel16.setText("Withdraw");
 
-        txt_withdrawAmount.setHint("PHP 0.00");
-
         jLabel17.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel17.setText("Balance");
 
         lbl_balance2.setText("PHP 0.00");
+
+        txt_withdrawAmount.setHint("PHP 0.00");
 
         javax.swing.GroupLayout pnl_withdrawLayout = new javax.swing.GroupLayout(pnl_withdraw);
         pnl_withdraw.setLayout(pnl_withdrawLayout);
@@ -494,7 +491,7 @@ public class UserPage extends javax.swing.JFrame {
                     .addGroup(pnl_withdrawLayout.createSequentialGroup()
                         .addGroup(pnl_withdrawLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(btn_withdraw, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(txt_withdrawAmount, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE))
+                            .addComponent(txt_withdrawAmount, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -508,9 +505,9 @@ public class UserPage extends javax.swing.JFrame {
                 .addComponent(jLabel16)
                 .addGap(30, 30, 30)
                 .addGroup(pnl_withdrawLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txt_withdrawAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel17)
-                    .addComponent(lbl_balance2))
+                    .addComponent(lbl_balance2)
+                    .addComponent(txt_withdrawAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 332, Short.MAX_VALUE)
                 .addComponent(btn_withdraw, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(42, 42, 42))
@@ -533,19 +530,10 @@ public class UserPage extends javax.swing.JFrame {
         jLabel18.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel18.setText("Transfer");
 
-        txt_destinationAccNum.setHint("Account number");
-        txt_destinationAccNum.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                txt_destinationAccNumKeyReleased(evt);
-            }
-        });
-
         jLabel19.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel19.setText("Balance");
 
         lbl_balance3.setText("PHP 0.00");
-
-        txt_transferAmount.setHint("PHP 0.00");
 
         txt_destinationName.setEditable(false);
         txt_destinationName.setCaretColor(new java.awt.Color(255, 255, 255));
@@ -560,6 +548,15 @@ public class UserPage extends javax.swing.JFrame {
         jLabel34.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         jLabel34.setText("A PHP 15.00 fee will be charged per transaction.");
 
+        txt_transferAmount.setHint("PHP 0.00");
+
+        txt_destinationAccNum.setHint("Account Number");
+        txt_destinationAccNum.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txt_destinationAccNumKeyReleased(evt);
+            }
+        });
+
         javax.swing.GroupLayout pnl_transferLayout = new javax.swing.GroupLayout(pnl_transfer);
         pnl_transfer.setLayout(pnl_transferLayout);
         pnl_transferLayout.setHorizontalGroup(
@@ -571,12 +568,11 @@ public class UserPage extends javax.swing.JFrame {
                         .addGroup(pnl_transferLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel18)
                             .addGroup(pnl_transferLayout.createSequentialGroup()
-                                .addGroup(pnl_transferLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(pnl_transferLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                        .addComponent(btn_transfer, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(txt_destinationAccNum, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE)
-                                        .addComponent(txt_transferAmount, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE))
-                                    .addComponent(jLabel20))
+                                .addGroup(pnl_transferLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(btn_transfer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(txt_transferAmount, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE)
+                                    .addComponent(jLabel20)
+                                    .addComponent(txt_destinationAccNum, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addGroup(pnl_transferLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(txt_destinationName, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE)
@@ -606,18 +602,18 @@ public class UserPage extends javax.swing.JFrame {
                     .addComponent(jLabel21))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(pnl_transferLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txt_destinationAccNum, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txt_destinationName, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txt_destinationName, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txt_destinationAccNum, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jLabel22)
-                .addGap(4, 4, 4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(pnl_transferLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txt_transferAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel19)
-                    .addComponent(lbl_balance3))
+                    .addComponent(lbl_balance3)
+                    .addComponent(txt_transferAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel34)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 212, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 210, Short.MAX_VALUE)
                 .addComponent(btn_transfer, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(42, 42, 42))
         );
@@ -634,10 +630,6 @@ public class UserPage extends javax.swing.JFrame {
 
         jLabel23.setText("Customer Account Number (CAN)");
 
-        txt_CAN.setHint("Enter 10-digit Account Number");
-
-        txt_electricAmount.setHint("PHP 0.00");
-
         jLabel24.setText("Amount");
 
         btn_payElectric.setBackground(new java.awt.Color(0, 0, 0));
@@ -653,20 +645,23 @@ public class UserPage extends javax.swing.JFrame {
         jLabel29.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         jLabel29.setText("Biller Convenience Fee (BCF) may apply");
 
+        txt_electricAmount.setHint("PHP 0.00");
+
+        txt_CAN.setHint("Enter 10-digit Account Number");
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(40, 40, 40)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jLabel24)
+                    .addComponent(jLabel23)
                     .addComponent(jLabel29, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jLabel24)
-                        .addComponent(txt_electricAmount, javax.swing.GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
-                        .addComponent(txt_CAN, javax.swing.GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
-                        .addComponent(jLabel23)
-                        .addComponent(btn_payElectric, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(txt_CAN, javax.swing.GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
+                    .addComponent(txt_electricAmount, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btn_payElectric, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(466, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
@@ -695,11 +690,7 @@ public class UserPage extends javax.swing.JFrame {
 
         jLabel25.setText("12-14 Digit Account Number");
 
-        txt_waterAccNum.setHint("Enter 12-14 Digit Account Number");
-
         jLabel26.setText("Amount");
-
-        txt_waterAmount.setHint("PHP 0.00");
 
         btn_payWater.setBackground(new java.awt.Color(0, 0, 0));
         btn_payWater.setForeground(new java.awt.Color(255, 255, 255));
@@ -718,22 +709,25 @@ public class UserPage extends javax.swing.JFrame {
         jLabel28.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         jLabel28.setText("Biller Convenience Fee (BCF) may apply");
 
+        txt_waterAmount.setHint("PHP 0.00");
+
+        txt_waterAccNum.setHint("Enter 12-14 Digit Account Number");
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addGap(40, 40, 40)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jLabel27)
-                    .addComponent(txt_waterName, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jLabel26)
-                        .addComponent(txt_waterAmount, javax.swing.GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
-                        .addComponent(txt_waterAccNum, javax.swing.GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
-                        .addComponent(jLabel25)
-                        .addComponent(btn_payWater, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(jLabel28, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txt_waterName, javax.swing.GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
+                    .addComponent(jLabel26)
+                    .addComponent(jLabel25)
+                    .addComponent(btn_payWater, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel28, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txt_waterAmount, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(txt_waterAccNum, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(323, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
@@ -764,15 +758,11 @@ public class UserPage extends javax.swing.JFrame {
 
         jLabel30.setText("Account Number (13-Digit)");
 
-        txt_wifiAccNum.setHint("Enter Account Number (13-Digit)");
-
         jLabel31.setText("Account Name");
 
         txt_wifiName.setHint("Enter Account Name");
 
         jLabel32.setText("Amount");
-
-        txt_wifiAmount.setHint("PHP 0.00");
 
         jLabel33.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         jLabel33.setText("Biller Convenience Fee (BCF) may apply");
@@ -787,22 +777,25 @@ public class UserPage extends javax.swing.JFrame {
             }
         });
 
+        txt_wifiAmount.setHint("PHP 0.00");
+
+        txt_wifiAccNum.setHint("Enter Account Number (13-Digit)");
+
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createSequentialGroup()
                 .addGap(40, 40, 40)
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(txt_wifiAmount, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel31)
-                    .addComponent(txt_wifiName, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jLabel32)
-                        .addComponent(txt_wifiAmount, javax.swing.GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
-                        .addComponent(txt_wifiAccNum, javax.swing.GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
-                        .addComponent(jLabel30)
-                        .addComponent(btn_payWifi, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(jLabel33, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txt_wifiName, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel32)
+                    .addComponent(jLabel30)
+                    .addComponent(btn_payWifi, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel33, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txt_wifiAccNum, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(323, Short.MAX_VALUE))
         );
         jPanel6Layout.setVerticalGroup(
@@ -1210,7 +1203,6 @@ public class UserPage extends javax.swing.JFrame {
         try {
             if (depositAmount < 100 || depositAmount > 100000) {
                 JOptionPane.showMessageDialog(null, "Deposit amount must be between PHP 100 and 100,000.");
-                txt_depositAmount.setText("");
                 return;
             }
 
@@ -1249,7 +1241,6 @@ public class UserPage extends javax.swing.JFrame {
 
                     loadTransactionHistory();
                     JOptionPane.showMessageDialog(null, "Deposit Successful.");
-                    txt_depositAmount.setText("");
                     setTransacDetails("Deposit Successful", depositAmount, 0.0, timestamp, referenceID);
                 }
             } catch (SQLException e) {
@@ -1257,6 +1248,8 @@ public class UserPage extends javax.swing.JFrame {
             }
         } catch (SQLException | ClassNotFoundException ex) {
             java.util.logging.Logger.getLogger(UserPage.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            txt_depositAmount.setText("");
         }
     }//GEN-LAST:event_btn_depositActionPerformed
 
@@ -1271,7 +1264,6 @@ public class UserPage extends javax.swing.JFrame {
         try {
             if (amount < 100 || amount > 100000) {
                 JOptionPane.showMessageDialog(null, "Withdraw amount must be between PHP 100 and 100,000.");
-                txt_withdrawAmount.setText("");
                 return;
             }
 
@@ -1295,7 +1287,6 @@ public class UserPage extends javax.swing.JFrame {
 
                         if (diff < 0) {
                             JOptionPane.showMessageDialog(null, "Insufficient Balance.");
-                            txt_withdrawAmount.setText("");
                         } else {
                             String num = String.format("%.2f", diff);
                             double newBalance = Double.parseDouble(num);
@@ -1321,7 +1312,6 @@ public class UserPage extends javax.swing.JFrame {
 
                                     loadTransactionHistory();
                                     JOptionPane.showMessageDialog(null, "Withdraw Successful.");
-                                    txt_withdrawAmount.setText("");
                                     setTransacDetails("Withdraw Successful", withdrawAmount, 0.0, timestamp, referenceID);
                                 } catch (SQLException e) {
                                     JOptionPane.showMessageDialog(null, e);
@@ -1335,6 +1325,8 @@ public class UserPage extends javax.swing.JFrame {
             }
         } catch (SQLException | ClassNotFoundException ex) {
             java.util.logging.Logger.getLogger(UserPage.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            txt_withdrawAmount.setText("");
         }
     }//GEN-LAST:event_btn_withdrawActionPerformed
 
@@ -1351,9 +1343,6 @@ public class UserPage extends javax.swing.JFrame {
 
             if (sourceAccount.equals(destinationAccount)) {
                 JOptionPane.showMessageDialog(null, "Cannot transfer to your own account.");
-                txt_destinationAccNum.setText("");
-                txt_transferAmount.setText("");
-                txt_destinationName.setText("");
                 return;
             }
 
@@ -1365,9 +1354,6 @@ public class UserPage extends javax.swing.JFrame {
 
             if (!rsDestAccount.next()) {
                 JOptionPane.showMessageDialog(null, "Invalid destination account number.");
-                txt_destinationAccNum.setText("");
-                txt_transferAmount.setText("");
-                txt_destinationName.setText("");
                 return;
             }
 
@@ -1419,119 +1405,118 @@ public class UserPage extends javax.swing.JFrame {
 
                     updateBalanceLabel(newBalance);
                     JOptionPane.showMessageDialog(null, "Transaction Success.");
-                    txt_destinationAccNum.setText("");
-                    txt_transferAmount.setText("");
-                    txt_destinationName.setText("");
-                    setTransacDetails("Successfully sent to " + destinationName,
-                            transferAmount, convenienceFee, timestamp, referenceID);
+                    setTransacDetails("Successfully sent to " + destinationName, transferAmount, convenienceFee, timestamp, referenceID);
                 } else {
                     JOptionPane.showMessageDialog(null, "Transfer amount must be between PHP 100 and PHP " + (currentBalance - convenienceFee) + " (including convenience fee).");
-                    txt_transferAmount.setText("");
                 }
             } else {
                 JOptionPane.showMessageDialog(null, "Error retrieving balance information.");
             }
         } catch (SQLException | ClassNotFoundException ex) {
             java.util.logging.Logger.getLogger(UserPage.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            txt_destinationAccNum.setText("");
+            txt_transferAmount.setText("");
+            txt_destinationName.setText("");
         }
     }//GEN-LAST:event_btn_transferActionPerformed
 
     private void btn_payElectricActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_payElectricActionPerformed
         String timestamp = getCurrentTimestamp();
 
-        String accountNumberStr = txt_CAN.getText();
-        if (accountNumberStr.length() != 10 || !accountNumberStr.matches("\\d+")) {
-            JOptionPane.showMessageDialog(null, "Invalid Account Number. Please enter a 10-digit numeric account number.");
-            txt_CAN.setText("");
-            return;
-        }
-
-        String accountNumber = lbl_accNum.getText();
-        double amount = Double.parseDouble(txt_electricAmount.getText());
-        String strAmount = String.format("%.2f", amount);
-        double amountPay = Double.parseDouble(strAmount);
-        String referenceID = generateRefID();
-
         try {
-            String sql = "SELECT * FROM sign_up WHERE account_number=?";
-            Connection conn = dc.getConnection();
-            pst = conn.prepareStatement(sql);
-            pst.setString(1, accountNumber);
-            rs = pst.executeQuery();
+            String accountNumberStr = txt_CAN.getText();
+            if (accountNumberStr.length() != 10 || !accountNumberStr.matches("\\d+")) {
+                JOptionPane.showMessageDialog(null, "Invalid Account Number. Please enter a 10-digit numeric account number.");
+                return;
+            }
 
-            if (rs.next()) {
-                double currentBalance = rs.getDouble("account_balance");
-                double convenienceFee = feePercentage * amountPay;
-                double totalAmount = amountPay + convenienceFee;
-                double diff = currentBalance - totalAmount;
+            String accountNumber = lbl_accNum.getText();
+            double amount = Double.parseDouble(txt_electricAmount.getText());
+            String strAmount = String.format("%.2f", amount);
+            double amountPay = Double.parseDouble(strAmount);
+            String referenceID = generateRefID();
 
-                if (amountPay >= 10.0 && totalAmount <= currentBalance) {
-                    String num = String.format("%.2f", diff);
-                    double newBalance = Double.parseDouble(num);
-                    updateBalanceLabel(newBalance);
+            try {
+                String sql = "SELECT * FROM sign_up WHERE account_number=?";
+                Connection conn = dc.getConnection();
+                pst = conn.prepareStatement(sql);
+                pst.setString(1, accountNumber);
+                rs = pst.executeQuery();
 
-                    try {
-                        String sql1 = "UPDATE sign_up SET account_balance=? WHERE account_number=?";
-                        pst1 = conn.prepareStatement(sql1);
-                        pst1.setDouble(1, newBalance);
-                        pst1.setString(2, accountNumber);
-                        pst1.execute();
+                if (rs.next()) {
+                    double currentBalance = rs.getDouble("account_balance");
+                    double convenienceFee = feePercentage * amountPay;
+                    double totalAmount = amountPay + convenienceFee;
+                    double diff = currentBalance - totalAmount;
+
+                    if (amountPay >= 10.0 && totalAmount <= currentBalance) {
+                        String num = String.format("%.2f", diff);
+                        double newBalance = Double.parseDouble(num);
+                        updateBalanceLabel(newBalance);
 
                         try {
-                            String sql2 = "INSERT INTO transactions (transaction_date, transaction_accNum, transaction_amount, transaction_type, reference_num, transaction_fee) VALUES (?,?,?,?,?,?)";
-                            pst2 = conn.prepareStatement(sql2);
-                            pst2.setString(1, timestamp);
-                            pst2.setString(2, accountNumber);
-                            pst2.setDouble(3, totalAmount);
-                            pst2.setString(4, "PAY BILLS");
-                            pst2.setString(5, referenceID);
-                            pst2.setDouble(6, convenienceFee);
-                            pst2.execute();
+                            String sql1 = "UPDATE sign_up SET account_balance=? WHERE account_number=?";
+                            pst1 = conn.prepareStatement(sql1);
+                            pst1.setDouble(1, newBalance);
+                            pst1.setString(2, accountNumber);
+                            pst1.execute();
 
-                            JOptionPane.showMessageDialog(null, "Payment Successful.");
-                            loadTransactionHistory();
-                            txt_electricAmount.setText("");
-                            txt_CAN.setText("");
-                            setTransacDetails("Payment Successful", amountPay, convenienceFee, timestamp, referenceID);
+                            try {
+                                String sql2 = "INSERT INTO transactions (transaction_date, transaction_accNum, transaction_amount, transaction_type, reference_num, transaction_fee) VALUES (?,?,?,?,?,?)";
+                                pst2 = conn.prepareStatement(sql2);
+                                pst2.setString(1, timestamp);
+                                pst2.setString(2, accountNumber);
+                                pst2.setDouble(3, totalAmount);
+                                pst2.setString(4, "PAY BILLS");
+                                pst2.setString(5, referenceID);
+                                pst2.setDouble(6, convenienceFee);
+                                pst2.execute();
+
+                                JOptionPane.showMessageDialog(null, "Payment Successful.");
+                                loadTransactionHistory();
+                                setTransacDetails("Payment Successful", amountPay, convenienceFee, timestamp, referenceID);
+                            } catch (SQLException e) {
+                                JOptionPane.showMessageDialog(null, e);
+                            }
                         } catch (SQLException e) {
                             JOptionPane.showMessageDialog(null, e);
                         }
-                    } catch (SQLException e) {
-                        JOptionPane.showMessageDialog(null, e);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Payment Failed.");
                     }
-                } else {
-                    JOptionPane.showMessageDialog(null, "Payment Failed.");
-                    txt_electricAmount.setText("");
                 }
+            } catch (SQLException | ClassNotFoundException ex) {
+                java.util.logging.Logger.getLogger(UserPage.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } catch (SQLException | ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(UserPage.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            txt_CAN.setText("");
+            txt_electricAmount.setText("");
         }
     }//GEN-LAST:event_btn_payElectricActionPerformed
 
     private void btn_payWaterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_payWaterActionPerformed
         String timestamp = getCurrentTimestamp();
 
-        String accountNumberStr = txt_waterAccNum.getText();
-        if (accountNumberStr.length() < 12 || accountNumberStr.length() > 14 || !accountNumberStr.matches("\\d+")) {
-            JOptionPane.showMessageDialog(null, "Invalid Account Number. Please enter a numeric account number with a length between 12 and 14 digits.");
-            txt_waterAccNum.setText("");
-            return;
-        }
-
-        String name = txt_waterName.getText().trim();
-        if (name.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Name cannot be empty. Please enter a valid name.");
-            return;
-        }
-
-        int accountNumber = Integer.parseInt(lbl_accNum.getText());
-        double amount = Double.parseDouble(txt_waterAmount.getText());
-        String strAmount = String.format("%.2f", amount);
-        double amountPay = Double.parseDouble(strAmount);
-        String referenceID = generateRefID();
-
         try {
+            String accountNumberStr = txt_waterAccNum.getText();
+            if (accountNumberStr.length() < 12 || accountNumberStr.length() > 14 || !accountNumberStr.matches("\\d+")) {
+                JOptionPane.showMessageDialog(null, "Invalid Account Number. Please enter a numeric account number with a length between 12 and 14 digits.");
+                return;
+            }
+
+            String name = txt_waterName.getText().trim();
+            if (name.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Name cannot be empty. Please enter a valid name.");
+                return;
+            }
+
+            int accountNumber = Integer.parseInt(lbl_accNum.getText());
+            double amount = Double.parseDouble(txt_waterAmount.getText());
+            String strAmount = String.format("%.2f", amount);
+            double amountPay = Double.parseDouble(strAmount);
+            String referenceID = generateRefID();
+
             String sql = "SELECT * FROM sign_up WHERE account_number=?";
             Connection conn = dc.getConnection();
             pst = conn.prepareStatement(sql);
@@ -1569,10 +1554,6 @@ public class UserPage extends javax.swing.JFrame {
 
                             JOptionPane.showMessageDialog(null, "Payment Successful.");
                             loadTransactionHistory();
-                            txt_waterAmount.setText("");
-                            txt_waterAccNum.setText("");
-                            txt_waterName.setText("");
-
                             setTransacDetails("Payment Successful", amountPay, convenienceFee, timestamp, referenceID);
                         } catch (SQLException e) {
                             JOptionPane.showMessageDialog(null, e);
@@ -1582,37 +1563,39 @@ public class UserPage extends javax.swing.JFrame {
                     }
                 } else {
                     JOptionPane.showMessageDialog(null, "Payment Failed.");
-                    txt_waterAmount.setText("");
                 }
             }
         } catch (SQLException | ClassNotFoundException ex) {
             java.util.logging.Logger.getLogger(UserPage.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            txt_waterAmount.setText("");
+            txt_waterAccNum.setText("");
+            txt_waterName.setText("");
         }
     }//GEN-LAST:event_btn_payWaterActionPerformed
 
     private void btn_payWifiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_payWifiActionPerformed
         String timestamp = getCurrentTimestamp();
 
-        String accountNumberStr = txt_wifiAccNum.getText();
-        if (accountNumberStr.length() != 13 || !accountNumberStr.matches("\\d+")) {
-            JOptionPane.showMessageDialog(null, "Invalid Account Number. Please enter a 13-digit numeric account number.");
-            txt_wifiAccNum.setText("");
-            return;
-        }
-
-        String name = txt_wifiName.getText().trim();
-        if (name.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Name cannot be empty. Please enter a valid name.");
-            return;
-        }
-
-        String accountNumber = lbl_accNum.getText();
-        double amount = Double.parseDouble(txt_wifiAmount.getText());
-        String strAmount = String.format("%.2f", amount);
-        double amountPay = Double.parseDouble(strAmount);
-        String referenceID = generateRefID();
-
         try {
+            String accountNumberStr = txt_wifiAccNum.getText();
+            if (accountNumberStr.length() != 13 || !accountNumberStr.matches("\\d+")) {
+                JOptionPane.showMessageDialog(null, "Invalid Account Number. Please enter a 13-digit numeric account number.");
+                return;
+            }
+
+            String name = txt_wifiName.getText().trim();
+            if (name.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Name cannot be empty. Please enter a valid name.");
+                return;
+            }
+
+            String accountNumber = lbl_accNum.getText();
+            double amount = Double.parseDouble(txt_wifiAmount.getText());
+            String strAmount = String.format("%.2f", amount);
+            double amountPay = Double.parseDouble(strAmount);
+            String referenceID = generateRefID();
+
             String sql = "SELECT * FROM sign_up WHERE account_number=?";
             Connection conn = dc.getConnection();
             pst = conn.prepareStatement(sql);
@@ -1650,9 +1633,6 @@ public class UserPage extends javax.swing.JFrame {
 
                             JOptionPane.showMessageDialog(null, "Payment Successful.");
                             loadTransactionHistory();
-                            txt_wifiAmount.setText("");
-                            txt_wifiAccNum.setText("");
-                            txt_wifiName.setText("");
                             setTransacDetails("Payment Successful", amountPay, convenienceFee, timestamp, referenceID);
                         } catch (SQLException e) {
                             JOptionPane.showMessageDialog(null, e);
@@ -1662,11 +1642,14 @@ public class UserPage extends javax.swing.JFrame {
                     }
                 } else {
                     JOptionPane.showMessageDialog(null, "Payment Failed.");
-                    txt_wifiAmount.setText("");
                 }
             }
         } catch (SQLException | ClassNotFoundException ex) {
             java.util.logging.Logger.getLogger(UserPage.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            txt_wifiAmount.setText("");
+            txt_wifiAccNum.setText("");
+            txt_wifiName.setText("");
         }
     }//GEN-LAST:event_btn_payWifiActionPerformed
 
@@ -1751,7 +1734,7 @@ public class UserPage extends javax.swing.JFrame {
 
         if (!accountNumber.isEmpty()) {
             try {
-                String sql = "SELECT first_name, last_name FROM sign_up WHERE account_number=?";
+                String sql = "SELECT first_name, last_name, account_balance FROM sign_up WHERE account_number=?";
                 try (Connection conn = dc.getConnection()) {
                     pst = conn.prepareStatement(sql);
                     pst.setString(1, accountNumber);
@@ -1762,12 +1745,13 @@ public class UserPage extends javax.swing.JFrame {
                         String lastName = rs.getString("last_name");
                         String fullName = firstName + " " + lastName;
                         txt_destinationName.setText(fullName);
+
                     } else {
                         txt_destinationName.setText("Not Found");
                     }
                 }
             } catch (SQLException | ClassNotFoundException ex) {
-                java.util.logging.Logger.getLogger(UserPage.class.getName()).log(Level.SEVERE, null, ex);
+                java.util.logging.Logger.getLogger(AdminPage.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }//GEN-LAST:event_txt_destinationAccNumKeyReleased
@@ -1863,29 +1847,29 @@ public class UserPage extends javax.swing.JFrame {
     private javax.swing.JPanel pnl_withdraw;
     private swing.Tabbed tabbed1;
     private swing.Tabbed tabbed2;
-    private swing.TextField txt_CAN;
+    private swing.NumericTextField txt_CAN;
     private swing.TextField txt_brgy;
     private swing.TextField txt_city;
     private swing.PasswordField txt_conPass;
     private swing.PasswordField txt_currPass;
-    private swing.TextField txt_depositAmount;
-    private swing.TextField txt_destinationAccNum;
+    private swing.NumericTextField txt_depositAmount;
+    private swing.NumericTextField txt_destinationAccNum;
     private swing.TextField txt_destinationName;
-    private swing.TextField txt_electricAmount;
+    private swing.NumericTextField txt_electricAmount;
     private swing.TextField txt_email;
     private swing.TextField txt_firstName;
     private swing.TextField txt_lastName;
     private swing.PasswordField txt_newPass;
     private swing.TextField txt_province;
     private swing.TextField txt_streetAddress;
-    private swing.TextField txt_transferAmount;
-    private swing.TextField txt_waterAccNum;
-    private swing.TextField txt_waterAmount;
+    private swing.NumericTextField txt_transferAmount;
+    private swing.NumericTextField txt_waterAccNum;
+    private swing.NumericTextField txt_waterAmount;
     private swing.TextField txt_waterName;
-    private swing.TextField txt_wifiAccNum;
-    private swing.TextField txt_wifiAmount;
+    private swing.NumericTextField txt_wifiAccNum;
+    private swing.NumericTextField txt_wifiAmount;
     private swing.TextField txt_wifiName;
-    private swing.TextField txt_withdrawAmount;
+    private swing.NumericTextField txt_withdrawAmount;
     private swing.TextField txt_zip;
     // End of variables declaration//GEN-END:variables
 }
