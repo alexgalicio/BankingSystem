@@ -31,7 +31,6 @@
 | ------------- | ------------- |
 | ![](./screenshots/splashScreen.png)  | ![](./screenshots/logIn.png)  |
 
-
 | Sign Up  | User Page |
 | ------------- | ------------- |
 | ![](./screenshots/signUp.png)  | ![](./screenshots/dashboardUser.png)  |
@@ -48,10 +47,14 @@
 | ------------- | ------------- |
 | ![](./screenshots/settings.png)  | ![](./screenshots/dashboardAdmin.png)  |
 
-| Manage Account  | New Account |
+| Manage Accounts  | New Account |
 | ------------- | ------------- |
 | ![](./screenshots/manageAccount.png)  | ![](./screenshots/newAccount.png)  |
 
-| Transaction  | Transaction Logs |
+| Edit Account  | Delete Account |
+| ------------- | ------------- |
+| ![](./screenshots/manageAccount.png)  | ![](./screenshots/newAccount.png)  |
+
+| Transactions  | Transaction Logs |
 | ------------- | ------------- |
 | ![](./screenshots/transactions.png)  | ![](./screenshots/transactionLogs.png)  |
