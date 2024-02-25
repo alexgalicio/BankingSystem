@@ -27,4 +27,18 @@
   * Withdraw
   * Transfer
   * Bill Payment
+
+### Screenshots
+| Splash Screen  | Login |
+| ------------- | ------------- |
+| ![] ./screenshots/splashScreen.png  | ./screenshots/logIn.png  |
+
+| signUp  | User Page |
+| ------------- | ------------- |
+| ![] ./screenshots/signUp.png  | ./screenshots/dashboardUser.png  |
+
+| signUp  | User Page |
+| ------------- | ------------- |
+| ![] ./screenshots/signUp.png  | ./screenshots/dashboardUser.png  |
+
  
