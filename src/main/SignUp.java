@@ -1,4 +1,3 @@
-
 package main;
 
 import java.awt.HeadlessException;
@@ -6,37 +5,34 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Calendar;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Random;
 import javax.swing.JOptionPane;
 
 public class SignUp extends javax.swing.JFrame {
 
-    private DatabaseConnection dc = new DatabaseConnection();
+    private final DatabaseConnection dc = new DatabaseConnection();
     private PreparedStatement pst;
     private ResultSet rs;
-    
+
     public SignUp() {
         initComponents();
     }
-    
+
     private int generateAccountNumber() {
-        Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR) % 100; // Taking only last two digits of the year
-        int month = calendar.get(Calendar.MONTH) + 1; // Month is zero-based
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        LocalDate currentDate = LocalDate.now(); // get the current date
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyMMdd"); // pattern year, month, day
+        String formattedDate = currentDate.format(dateFormat); // format the pattern
 
-        int formattedMonth = Integer.parseInt(String.format("%02d", month));
-        int formattedDay = Integer.parseInt(String.format("%02d", day));
+        Random random = new Random();
+        int randomDigits = random.nextInt(100); // generate random digits from 0 - 99
 
-        // Concatenate year, month, day, and 2 random digits
-        int accountNumber = year * 1000000 + formattedMonth * 10000 + formattedDay * 100 + generateRandomDigits(2);
-        return accountNumber;
-    }
+        // combine the formatted date and random digits that is formatted into two digits
+        String uniqueIdString = formattedDate + String.format("%02d", randomDigits);
+        int uniqueId = Integer.parseInt(uniqueIdString); // convert the unique ID string to an integer
 
-    private int generateRandomDigits(int numberOfDigits) {
-        int min = (int) Math.pow(10, numberOfDigits - 1);
-        int max = (int) (Math.pow(10, numberOfDigits) - 1);
-        return (int) (Math.random() * (max - min + 1) + min);
+        return uniqueId;
     }
 
     private boolean isUsernameTaken(String username) {
@@ -44,22 +40,21 @@ public class SignUp extends javax.swing.JFrame {
             return true; // Username cannot be "admin"
         }
 
+        // convert current username and new username to lowercase 
         String sql = "SELECT username FROM sign_up WHERE LOWER(username) = LOWER(?)";
-
         try {
             Connection conn = dc.getConnection();
             pst = conn.prepareStatement(sql);
             pst.setString(1, username.toLowerCase());
             rs = pst.executeQuery();
 
-            return rs.next(); // Returns true if username is already taken
+            return rs.next(); // returns true if username is already taken
 
         } catch (ClassNotFoundException | SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error checking username availability: " + e.getMessage());
-            return true; // Assume an error occurred and block the registration
+            JOptionPane.showMessageDialog(null, e);
+            return true; 
         }
     }
-
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -103,7 +98,7 @@ public class SignUp extends javax.swing.JFrame {
 
         txt_city.setHint("CIty/Municipality");
 
-        txt_username.setHint("Username");
+        txt_username.setHint("Username (max 6 characters)");
 
         txt_province.setHint("Province");
 
@@ -240,19 +235,19 @@ public class SignUp extends javax.swing.JFrame {
         // check if any of the fields is not empty
         if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || username.isEmpty() || password.isEmpty()
                 || streetAddress.isEmpty() || zipCode.isEmpty() || barangay.isEmpty() || city.isEmpty() || province.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Please fill in all the fields");
+            JOptionPane.showMessageDialog(null, "Please fill in all fields.", null, JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Check if username is already taken
+        // check if username is already taken
         if (isUsernameTaken(username)) {
-            JOptionPane.showMessageDialog(null, "Username is already taken.");
+            JOptionPane.showMessageDialog(null, "This username is already taken.", null, JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Check if username is limited to 6 characters
+        // username is limited to 6 characters only
         if (username.length() > 6) {
-            JOptionPane.showMessageDialog(null, "Username should be limited to 6 characters.");
+            JOptionPane.showMessageDialog(null, "Username can't be longer than 6 characters.", null, JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -275,7 +270,7 @@ public class SignUp extends javax.swing.JFrame {
             pst.setString(12, city);
             pst.setString(13, province);
             pst.execute();
-            JOptionPane.showMessageDialog(null, "Account created successfully");
+            JOptionPane.showMessageDialog(null, "Account has been created successfully.", null, JOptionPane.INFORMATION_MESSAGE);
 
             txt_username.setText("");
             txt_password.setText("");

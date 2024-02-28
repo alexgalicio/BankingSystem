@@ -140,17 +140,17 @@ public class LogIn extends javax.swing.JFrame {
         try {
             Connection conn = dc.getConnection();
 
-            // Check if the username and password are "admin"
+            // check if the username and password are "admin"
             if ("admin".equals(identifier) && "admin".equals(String.valueOf(password))) {
-                AdminPage adminPage = new AdminPage(); // // If it's the admin, show the AdminMenu
+                AdminPage adminPage = new AdminPage(); // if it is the admin, show the AdminMenu
                 adminPage.show();
                 this.dispose();
                 return;
             }
 
-            // For regular users: check whether the user has provided an account number or username for login
+            // for regular users: check whether the user has provided an account number or username for login
             String sql;
-            if (identifier.matches("\\d+")) {   // BINARY - forces a comparison for an exact case-sensitive match.
+            if (identifier.matches("\\d+")) {   // BINARY - forces a comparison for an exact case-sensitive match. (ALEX != alex)
                 sql = "SELECT * FROM sign_up WHERE account_number = ? AND BINARY password = ?";
             } else {
                 sql = "SELECT * FROM sign_up WHERE BINARY username = ? AND BINARY password = ?";
@@ -162,7 +162,7 @@ public class LogIn extends javax.swing.JFrame {
 
             ResultSet rs = pst.executeQuery();
             if (!rs.next()) {
-                JOptionPane.showMessageDialog(null, "Invalid username or password.");
+                JOptionPane.showMessageDialog(this, "Incorrect username or password.",  null, JOptionPane.ERROR_MESSAGE);
                 txt_username.setText("");
                 txt_password.setText("");
             } else {
@@ -202,7 +202,7 @@ public class LogIn extends javax.swing.JFrame {
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-//                new SplashScreen(null, true).setVisible(true);
+                new SplashScreen(null, true).setVisible(true);
                 new LogIn().setVisible(true);
             }
         });

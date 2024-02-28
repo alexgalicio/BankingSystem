@@ -1,31 +1,23 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
- */
 package main;
 
 import java.awt.Color;
 import javax.swing.JDialog;
 
-/**
- *
- * @author alex
- */
 public class SplashScreen extends javax.swing.JDialog {
 
     public SplashScreen(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-         getContentPane().setBackground(new Color(221, 221, 221));
+        getContentPane().setBackground(new Color(221, 221, 221));
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
     }
-    
+
     private void doTask(String taskName, int progress) throws Exception {
         jLabel1.setText(taskName);
         Thread.sleep(1000); //  For Test
         jProgressBar1.setValue(progress);
     }
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -93,16 +85,16 @@ public class SplashScreen extends javax.swing.JDialog {
             @Override
             public void run() {
                 try {
-                    doTask("Connecting To Database ...", 10);
-                    doTask("Glad to see you here! ...", 20);
-                    doTask("Please wait ...", 30);
-                    doTask("Anita Max Wynn ...", 40);
-                    doTask("Gizmo ...", 50);
-                    doTask("Alex ...", 60);
-                    doTask("Francis ...", 70);
-                    doTask("Daniel ...", 80);
-                    doTask("Novie ...", 90);
-                    doTask("Zandrea ...", 100);
+                    doTask("Connecting to Database ...", 10);
+                    doTask("Please wait.", 20);
+                    doTask("Please wait..", 30);
+                    doTask("Please wait...", 40);
+                    doTask("Please wait.", 50);
+                    doTask("Please wait..", 60);
+                    doTask("Please wait...", 70);
+                    doTask("Please wait.", 80);
+                    doTask("Please wait..", 90);
+                    doTask("Please wait...", 100);
                     doTask("Done ...", 100);
                     dispose();
                 } catch (Exception e) {
@@ -112,34 +104,8 @@ public class SplashScreen extends javax.swing.JDialog {
         }).start();
     }//GEN-LAST:event_formWindowOpened
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(SplashScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(SplashScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(SplashScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(SplashScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
 
-        /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 SplashScreen dialog = new SplashScreen(new javax.swing.JFrame(), true);

@@ -7,7 +7,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Random;
 import java.util.Vector;
@@ -20,7 +21,7 @@ import swing.TextAreaCellRenderer;
 
 public class AdminPage extends javax.swing.JFrame {
 
-    private DatabaseConnection dc = new DatabaseConnection();
+    private final DatabaseConnection dc = new DatabaseConnection();
     private PreparedStatement pst, pst1, pst2, pst3, pst4, pst5;
     private ResultSet rs;
 
@@ -32,9 +33,9 @@ public class AdminPage extends javax.swing.JFrame {
     private void init() {
         lbl_greet.setText("Hello, Admin");
         updateDetails();
-        fetchData();
+        accountTable();
         transactionTable();
-        menuAdmin1.addEventMenuSelected((int index) -> {
+        menuAdmin1.addEventMenuSelected((int index) -> { // show panel base on index clicked
             switch (index) {
                 case 0 ->
                     showForm(pnl_dashboard);
@@ -77,7 +78,7 @@ public class AdminPage extends javax.swing.JFrame {
         lbl_totalProfit.setText("PHP " + totalProfit);
     }
 
-    private void fetchData() {
+    private void accountTable() {
         String sql = "SELECT * FROM sign_up";
 
         try {
@@ -86,8 +87,8 @@ public class AdminPage extends javax.swing.JFrame {
             rs = pst.executeQuery();
 
             DefaultTableModel model = (DefaultTableModel) tbl_data.getModel();
-            model.setRowCount(0);
-            tbl_data.getTableHeader().setReorderingAllowed(false);
+            model.setRowCount(0); // clears content in the table
+            tbl_data.getTableHeader().setReorderingAllowed(false); // prevent re-ordering columns
 
             setCustomRendererForColumn("Name");
             setCustomRendererForColumn("Email");
@@ -103,8 +104,7 @@ public class AdminPage extends javax.swing.JFrame {
                 v2.add(rs.getString("street_address") + " " + rs.getString("barangay") + ", "
                         + rs.getString("city") + ", " + rs.getString("province"));
 
-                // Add the row to the data Vector
-                model.addRow(v2);
+                model.addRow(v2); // Add the row to the data Vector
             }
 
         } catch (ClassNotFoundException | SQLException ex) {
@@ -121,8 +121,8 @@ public class AdminPage extends javax.swing.JFrame {
             rs = pst.executeQuery();
 
             DefaultTableModel model = (DefaultTableModel) tbl_logs.getModel();
-            model.setRowCount(0);
-            tbl_logs.getTableHeader().setReorderingAllowed(false);
+            model.setRowCount(0); // clears content in the table
+            tbl_logs.getTableHeader().setReorderingAllowed(false); // prevent re-ordering columns
 
             while (rs.next()) {
                 Vector v2 = new Vector<>();
@@ -155,7 +155,7 @@ public class AdminPage extends javax.swing.JFrame {
     }
 
     private double getTotalBalance() {
-        String sql = "SELECT SUM(account_balance) AS total_balance FROM sign_up";
+        String sql = "SELECT SUM(account_balance) AS total_balance FROM sign_up"; // get the sum of account balance
         try {
             Connection conn = dc.getConnection();
             pst = conn.prepareStatement(sql);
@@ -165,7 +165,7 @@ public class AdminPage extends javax.swing.JFrame {
                 return rs.getDouble("total_balance");
             }
         } catch (ClassNotFoundException | SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error getting total balance: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, e);
         }
 
         return 0; // Default return in case of an error
@@ -182,14 +182,14 @@ public class AdminPage extends javax.swing.JFrame {
                 return rs.getInt("total_accounts");
             }
         } catch (ClassNotFoundException | SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error getting total accounts: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, e);
         }
 
         return 0;
     }
 
     public double getTotalProfit() {
-        String sql = "SELECT SUM(transaction_fee) AS total_profit FROM transactions";
+        String sql = "SELECT SUM(transaction_fee) AS total_profit FROM transactions"; // get the sum of transaction fee
         try {
             Connection conn = dc.getConnection();
             pst = conn.prepareStatement(sql);
@@ -199,86 +199,87 @@ public class AdminPage extends javax.swing.JFrame {
                 return rs.getDouble("total_profit");
             }
         } catch (ClassNotFoundException | SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error getting total profit: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, e);
         }
         return 0;
     }
 
     private int generateAccountNumber() {
-        Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR) % 100;
-        int month = calendar.get(Calendar.MONTH) + 1;
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        LocalDate currentDate = LocalDate.now(); // get the current date
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyMMdd"); // pattern year, month, day
+        String formattedDate = currentDate.format(dateFormat); // format the pattern
 
-        int formattedMonth = Integer.parseInt(String.format("%02d", month));
-        int formattedDay = Integer.parseInt(String.format("%02d", day));
+        Random random = new Random();
+        int randomDigits = random.nextInt(100); // generate random digits from 0 - 99
 
-        int accountNumber = year * 1000000 + formattedMonth * 10000 + formattedDay * 100 + generateRandomDigits(2);
-        return accountNumber;
+        // combine the formatted date and random digits that is formatted into two digits
+        String uniqueIdString = formattedDate + String.format("%02d", randomDigits);
+        int uniqueId = Integer.parseInt(uniqueIdString); // convert the unique ID string to an integer
+
+        return uniqueId;
     }
 
-    private int generateRandomDigits(int numberOfDigits) {
-        int min = (int) Math.pow(10, numberOfDigits - 1);
-        int max = (int) (Math.pow(10, numberOfDigits) - 1);
-        return (int) (Math.random() * (max - min + 1) + min);
-    }
-    
-    private boolean isUsernameTaken(String username) {
+    private boolean isUsernameTaken(String username) { // overload constructor with param username
         if ("admin".equalsIgnoreCase(username)) {
             return true; // Username cannot be "admin"
         }
 
+        // converts the cuurent username and the new username (LOWER(?)) into lowercase (ALEX = alex)
         String sql = "SELECT username FROM sign_up WHERE LOWER(username) = LOWER(?)";
         try {
             Connection conn = dc.getConnection();
             pst = conn.prepareStatement(sql);
-            pst.setString(1, username.toLowerCase());
+            pst.setString(1, username);
             rs = pst.executeQuery();
 
             return rs.next();
 
         } catch (ClassNotFoundException | SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error checking username availability: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, e);
             return true;
         }
     }
 
-    private boolean isUsernameTaken(String username, String currentAccNum) {
+    // overload constructor with param username and account number
+    private boolean isUsernameTaken(String username, String currentAccNum) { 
         if ("admin".equalsIgnoreCase(username)) {
             return true; // Username cannot be "admin"
         }
 
+        // converts the current username and new username to lowercase then 
+        // "<>" or (!=) check if the account number is not equal to current account number
         String sql = "SELECT username FROM sign_up WHERE LOWER(username) = LOWER(?) AND account_number <> ?";
         try {
             Connection conn = dc.getConnection();
             pst = conn.prepareStatement(sql);
-            pst.setString(1, username.toLowerCase());
+            pst.setString(1, username);
             pst.setString(2, currentAccNum);
             rs = pst.executeQuery();
 
             return rs.next();
 
         } catch (ClassNotFoundException | SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error checking username availability: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, e);
             return true;
         }
     }
 
-    public String getCurrentTimestamp() {
+    private String getCurrentTimestamp() {
         Date date = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return formatter.format(date);
     }
 
     private String generateRefID() {
-        StringBuilder refID = new StringBuilder("OOP");
         Random random = new Random();
-        for (int i = 0; i < 4; i++) {
-            refID.append(random.nextInt(10));
-        }
-        refID.append("24");
+        int randomNumber = random.nextInt(10000); // 0 - 9999
+        String randomNumberString = String.format("%04d", randomNumber); // format into 4 digit string
 
-        return refID.toString();
+        LocalDate currentDate = LocalDate.now();
+        int lastTwoDigitsOfYear = currentDate.getYear() % 100; // get the last two digit of the year (24)
+        String yearString = String.format("%02d", lastTwoDigitsOfYear);
+
+        return "OOP" + randomNumberString + yearString; // reference id format (OOP (random numbers) 24)
     }
 
     @SuppressWarnings("unchecked")
@@ -371,6 +372,7 @@ public class AdminPage extends javax.swing.JFrame {
         btn_deposit = new swing.Button();
         txt_depositAmount = new swing.NumericTextField();
         txt_accNum = new swing.NumericTextField();
+        jLabel38 = new javax.swing.JLabel();
         jPanel5 = new javax.swing.JPanel();
         jLabel24 = new javax.swing.JLabel();
         jLabel25 = new javax.swing.JLabel();
@@ -381,6 +383,7 @@ public class AdminPage extends javax.swing.JFrame {
         jLabel27 = new javax.swing.JLabel();
         txt_withdrawAmount = new swing.NumericTextField();
         txt_accNum1 = new swing.NumericTextField();
+        jLabel41 = new javax.swing.JLabel();
         jScrollPane3 = new javax.swing.JScrollPane();
         jPanel3 = new javax.swing.JPanel();
         btn_transfer = new swing.Button();
@@ -396,6 +399,7 @@ public class AdminPage extends javax.swing.JFrame {
         txt_transferAmount = new swing.NumericTextField();
         txt_sourceAccNum = new swing.NumericTextField();
         txt_destinationAccNum = new swing.NumericTextField();
+        jLabel39 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
@@ -1087,6 +1091,9 @@ public class AdminPage extends javax.swing.JFrame {
             }
         });
 
+        jLabel38.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
+        jLabel38.setText("From PHP 100.00 up to PHP 50,000.00 only.");
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
@@ -1095,22 +1102,26 @@ public class AdminPage extends javax.swing.JFrame {
                 .addGap(40, 40, 40)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel21)
-                            .addComponent(txt_name, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel23)
-                            .addComponent(txt_balance, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 46, Short.MAX_VALUE))
-                    .addGroup(jPanel4Layout.createSequentialGroup()
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(btn_deposit, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel22, javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel20, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txt_depositAmount, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE)
                             .addComponent(txt_accNum, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(jLabel22, javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(txt_depositAmount, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE))
+                            .addComponent(jLabel38)
+                            .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel21)
+                                    .addComponent(txt_name, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel23)
+                                    .addComponent(txt_balance, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(0, 46, Short.MAX_VALUE))))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1134,9 +1145,11 @@ public class AdminPage extends javax.swing.JFrame {
                 .addComponent(jLabel22)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txt_depositAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(155, 155, 155)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel38)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 140, Short.MAX_VALUE)
                 .addComponent(btn_deposit, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(33, 33, 33))
+                .addContainerGap(28, Short.MAX_VALUE))
         );
 
         tabbed1.addTab("Deposit", jPanel4);
@@ -1178,6 +1191,9 @@ public class AdminPage extends javax.swing.JFrame {
             }
         });
 
+        jLabel41.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
+        jLabel41.setText("From PHP 100.00 up to PHP 50,000.00 only.");
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
@@ -1186,22 +1202,26 @@ public class AdminPage extends javax.swing.JFrame {
                 .addGap(40, 40, 40)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel25)
-                            .addComponent(txt_name1, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel27)
-                            .addComponent(txt_balance1, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 46, Short.MAX_VALUE))
-                    .addGroup(jPanel5Layout.createSequentialGroup()
                         .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(btn_withdraw, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel26, javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel24, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txt_withdrawAmount, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE)
                             .addComponent(txt_accNum1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(jLabel26, javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(txt_withdrawAmount, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE))
+                            .addComponent(jLabel41)
+                            .addGroup(jPanel5Layout.createSequentialGroup()
+                                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel25)
+                                    .addComponent(txt_name1, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel27)
+                                    .addComponent(txt_balance1, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(0, 46, Short.MAX_VALUE))))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1225,9 +1245,11 @@ public class AdminPage extends javax.swing.JFrame {
                 .addComponent(jLabel26)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txt_withdrawAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(155, 155, 155)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel41)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 140, Short.MAX_VALUE)
                 .addComponent(btn_withdraw, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(33, 33, 33))
+                .addContainerGap(28, Short.MAX_VALUE))
         );
 
         tabbed1.addTab("Withdraw", jPanel5);
@@ -1288,6 +1310,9 @@ public class AdminPage extends javax.swing.JFrame {
             }
         });
 
+        jLabel39.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
+        jLabel39.setText("A PHP 15.00 fee will be charged per transaction.");
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -1295,32 +1320,37 @@ public class AdminPage extends javax.swing.JFrame {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(40, 40, 40)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                        .addComponent(txt_sourceAccNum, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(18, 18, 18)
-                        .addComponent(txt_destinationAccNum, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jLabel32)
-                        .addGap(183, 183, 183)
-                        .addComponent(jLabel34))
-                    .addComponent(jLabel30)
+                        .addComponent(jLabel39)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(jLabel33)
-                                .addGap(241, 241, 241))
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(txt_sourceName, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGap(18, 18, 18)))
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel35)
-                            .addComponent(txt_destinationName, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(btn_transfer, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel31)
-                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(txt_sourceBalance, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE)
-                        .addComponent(txt_transferAmount, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap(46, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                                .addComponent(txt_sourceAccNum, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGap(18, 18, 18)
+                                .addComponent(txt_destinationAccNum, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(jLabel32)
+                                .addGap(183, 183, 183)
+                                .addComponent(jLabel34))
+                            .addComponent(jLabel30)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addGroup(jPanel3Layout.createSequentialGroup()
+                                        .addComponent(jLabel33)
+                                        .addGap(241, 241, 241))
+                                    .addGroup(jPanel3Layout.createSequentialGroup()
+                                        .addComponent(txt_sourceName, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addGap(18, 18, 18)))
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel35)
+                                    .addComponent(txt_destinationName, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(btn_transfer, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel31)
+                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(txt_sourceBalance, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE)
+                                .addComponent(txt_transferAmount, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addContainerGap(46, Short.MAX_VALUE))))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1346,7 +1376,7 @@ public class AdminPage extends javax.swing.JFrame {
                         .addComponent(jLabel35)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(txt_destinationName, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(18, 18, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addComponent(jLabel31)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txt_sourceBalance, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1354,9 +1384,11 @@ public class AdminPage extends javax.swing.JFrame {
                 .addComponent(jLabel30)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txt_transferAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(75, 75, 75)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel39)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 60, Short.MAX_VALUE)
                 .addComponent(btn_transfer, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(46, 46, 46))
+                .addContainerGap(51, Short.MAX_VALUE))
         );
 
         jScrollPane3.setViewportView(jPanel3);
@@ -1414,13 +1446,14 @@ public class AdminPage extends javax.swing.JFrame {
 
     private void btn_editActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_editActionPerformed
         try {
-            int selectedRow = tbl_data.getSelectedRow();
+            int selectedRow = tbl_data.getSelectedRow(); // get the index of selected row
 
-            if (selectedRow == -1) {
-                JOptionPane.showMessageDialog(this, "Please select a record to edit.");
+            if (selectedRow == -1) { // if no index is selected 
+                JOptionPane.showMessageDialog(this, "Please select a record to edit.", null, JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
+            // get the account number in the selected row column 0
             String accNum = tbl_data.getValueAt(selectedRow, 0).toString();
 
             String sql = "SELECT * FROM sign_up WHERE account_number=?";
@@ -1453,7 +1486,7 @@ public class AdminPage extends javax.swing.JFrame {
                 txt_username1.setText(username);
                 txt_password1.setText(password);
             }
-            showForm(pnl_updateAccount);
+            showForm(pnl_updateAccount); // show the page for the update account
         } catch (HeadlessException | ClassNotFoundException | SQLException e) {
             JOptionPane.showMessageDialog(null, e);
         }
@@ -1463,14 +1496,15 @@ public class AdminPage extends javax.swing.JFrame {
         int selectedRow = tbl_data.getSelectedRow();
 
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a record to delete.");
+            JOptionPane.showMessageDialog(this, "Please select a record to delete.", null, JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         String accNum = tbl_data.getValueAt(selectedRow, 0).toString();
         String userName = tbl_data.getValueAt(selectedRow, 1).toString();
         try {
-            int confirmDelete = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete @" + userName + "?",
+            // dialog: YES_OPTION = 0, NO_OPTION = 1
+            int confirmDelete = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete \"" + userName + "\"?",
                     "Confirm Delete", JOptionPane.YES_NO_OPTION);
 
             if (confirmDelete == JOptionPane.YES_OPTION) {
@@ -1487,14 +1521,14 @@ public class AdminPage extends javax.swing.JFrame {
                         int rowsAffected = pst.executeUpdate();
 
                         if (rowsAffected > 0) {
-                            JOptionPane.showMessageDialog(this, "Record deleted successfully.");
-                            fetchData();
+                            JOptionPane.showMessageDialog(this, "\"" + userName + "\" was deleted successfully.", null, JOptionPane.INFORMATION_MESSAGE);
+                            accountTable();
                             updateDetails();
                         } else {
-                            JOptionPane.showMessageDialog(this, "Failed to delete the record.");
+                            JOptionPane.showMessageDialog(this, "Failed to delete record.", null, JOptionPane.ERROR_MESSAGE);
                         }
                     } else {
-                        JOptionPane.showMessageDialog(null, "Invalid password.");
+                        JOptionPane.showMessageDialog(null, "Incorrect password.", null, JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
@@ -1508,21 +1542,21 @@ public class AdminPage extends javax.swing.JFrame {
         try {
             String sql;
             if ("".equals(accNum)) {
-                sql = "SELECT * FROM sign_up";
+                sql = "SELECT * FROM sign_up"; // if field is emplty display all the accounts
             } else {
-                sql = "SELECT * FROM sign_up WHERE account_number=?";
+                sql = "SELECT * FROM sign_up WHERE account_number=?"; // only display the account number they search
             }
 
             Connection conn = dc.getConnection();
             pst = conn.prepareStatement(sql);
 
-            if (!"".equals(accNum)) {
+            if (!"".equals(accNum)) { // if empty dont set pst, so it will display all the records
                 pst.setString(1, accNum);
             }
             rs = pst.executeQuery();
 
             DefaultTableModel model = (DefaultTableModel) tbl_data.getModel();
-            model.setRowCount(0); // Clear existing rows in the table
+            model.setRowCount(0); // clear existing rows in the table
 
             while (rs.next()) {
                 Vector v2 = new Vector<>();
@@ -1559,18 +1593,18 @@ public class AdminPage extends javax.swing.JFrame {
 
             if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || streetAdd.isEmpty() || zip.isEmpty()
                     || brgy.isEmpty() || city.isEmpty() || prov.isEmpty() || username.isEmpty() || password.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Please fill in all fields.");
+                JOptionPane.showMessageDialog(null, "Please fill in all the fields.", null, JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
-            if (isUsernameTaken(username, accNum)) {
-                JOptionPane.showMessageDialog(null, "Username is already taken.");
+            if (isUsernameTaken(username, accNum)) { 
+                JOptionPane.showMessageDialog(null, "This username is already taken.", null, JOptionPane.WARNING_MESSAGE);
                 txt_username1.setText("");
                 return;
             }
 
-            if (username.length() > 6) {
-                JOptionPane.showMessageDialog(null, "Username should be limited to 6 characters.");
+            if (username.length() > 6) { // username limit to 6 chars only
+                JOptionPane.showMessageDialog(null, "Username can't be longer than 6 characters.", null, JOptionPane.WARNING_MESSAGE);
                 txt_username1.setText("");
                 return;
             }
@@ -1593,8 +1627,8 @@ public class AdminPage extends javax.swing.JFrame {
             pst.setString(11, accNum);
             pst.execute();
 
-            fetchData();
-            JOptionPane.showMessageDialog(null, "Successfully changed details.");
+            accountTable(); // call this to update the table with new details
+            JOptionPane.showMessageDialog(null, "Successfully changed details.", null, JOptionPane.INFORMATION_MESSAGE);
             showForm(pnl_manageAccounts);
         } catch (SQLException | ClassNotFoundException ex) {
             java.util.logging.Logger.getLogger(AdminPage.class.getName()).log(Level.SEVERE, null, ex);
@@ -1617,8 +1651,7 @@ public class AdminPage extends javax.swing.JFrame {
     private void btn_createAccountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_createAccountActionPerformed
         int account_number = generateAccountNumber();
         double account_balance = 0;
-        java.util.Date currentDate = new java.util.Date();
-        java.sql.Timestamp timestamp = new java.sql.Timestamp(currentDate.getTime());
+        String timestamp = getCurrentTimestamp();
         String firstName = txt_firstName.getText();
         String lastName = txt_lastName.getText();
         String email = txt_email.getText();
@@ -1632,18 +1665,18 @@ public class AdminPage extends javax.swing.JFrame {
 
         if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || username.isEmpty() || password.isEmpty()
                 || streetAddress.isEmpty() || zipCode.isEmpty() || barangay.isEmpty() || city.isEmpty() || province.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Please fill in all the fields");
+            JOptionPane.showMessageDialog(null, "Please fill in all fields.", null, JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         if (isUsernameTaken(username)) {
-            JOptionPane.showMessageDialog(null, "Username is already taken.");
+            JOptionPane.showMessageDialog(null, "This username is already taken.", null, JOptionPane.WARNING_MESSAGE);
             txt_username.setText("");
             return;
         }
 
         if (username.length() > 6) {
-            JOptionPane.showMessageDialog(null, "Username should be limited to 6 characters.");
+            JOptionPane.showMessageDialog(null, "Username can't be longer than 6 characters.", null, JOptionPane.WARNING_MESSAGE);
             txt_username.setText("");
             return;
         }
@@ -1657,7 +1690,7 @@ public class AdminPage extends javax.swing.JFrame {
             pst.setString(2, username);
             pst.setString(3, password);
             pst.setDouble(4, account_balance);
-            pst.setTimestamp(5, timestamp);
+            pst.setString(5, timestamp);
             pst.setString(6, firstName);
             pst.setString(7, lastName);
             pst.setString(8, email);
@@ -1668,8 +1701,8 @@ public class AdminPage extends javax.swing.JFrame {
             pst.setString(13, province);
             pst.execute();
 
-            fetchData();
-            JOptionPane.showMessageDialog(null, "Account created successfully");
+            accountTable(); // to update the table with new account
+            JOptionPane.showMessageDialog(null, "Account has been created successfully.", null, JOptionPane.INFORMATION_MESSAGE);
 
             txt_username.setText("");
             txt_password.setText("");
@@ -1706,9 +1739,9 @@ public class AdminPage extends javax.swing.JFrame {
         try {
             String sql;
             if ("".equals(accNum)) {
-                sql = "SELECT * FROM transactions";
+                sql = "SELECT * FROM transactions"; // show all transactions if field is empty 
             } else {
-                sql = "SELECT * FROM transactions WHERE transaction_accNum=?";
+                sql = "SELECT * FROM transactions WHERE transaction_accNum=?"; // show only the account number they search
             }
 
             Connection conn = dc.getConnection();
@@ -1747,8 +1780,8 @@ public class AdminPage extends javax.swing.JFrame {
         String referenceID = generateRefID();
 
         try {
-            if (depositAmount < 100 || depositAmount > 100000) {
-                JOptionPane.showMessageDialog(null, "Deposit amount must be between PHP 100 and 100,000.");
+            if (depositAmount < 100 || depositAmount > 50000) {
+                JOptionPane.showMessageDialog(null, "Amount must be between PHP 100.00 and PHP 50,000.00.", null, JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
@@ -1775,7 +1808,7 @@ public class AdminPage extends javax.swing.JFrame {
                         JOptionPane.showMessageDialog(null, e);
                     }
 
-                    JOptionPane.showMessageDialog(null, "Deposit Successful.");
+                    JOptionPane.showMessageDialog(null, "Deposit Successful.", null, JOptionPane.INFORMATION_MESSAGE);
                     try {
                         String sql = "INSERT INTO transactions (transaction_date, transaction_accNum, transaction_amount, transaction_type, reference_num, transaction_fee) VALUES (?,?,?,?,?,?)";
                         pst = conn.prepareStatement(sql);
@@ -1792,7 +1825,7 @@ public class AdminPage extends javax.swing.JFrame {
                         JOptionPane.showMessageDialog(null, ex);
                     }
                 } else {
-                    JOptionPane.showMessageDialog(null, "Account number not found. Please enter a valid account number.");
+                    JOptionPane.showMessageDialog(null, "Account number not found.", null, JOptionPane.ERROR_MESSAGE);
                 }
             } catch (SQLException e) {
                 JOptionPane.showMessageDialog(null, e);
@@ -1816,8 +1849,8 @@ public class AdminPage extends javax.swing.JFrame {
         String referenceID = generateRefID();
 
         try {
-            if (amount < 100 || amount > 100000) {
-                JOptionPane.showMessageDialog(null, "Withdraw amount must be between PHP 100 and 100,000.");
+            if (amount < 100 || amount > 50000) {
+                JOptionPane.showMessageDialog(null, "Amount must be between PHP 100.00 and PHP 50,000.00.", null, JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
@@ -1832,7 +1865,7 @@ public class AdminPage extends javax.swing.JFrame {
                 double diff = currentBalance - withdrawAmount;
 
                 if (diff < 0) {
-                    JOptionPane.showMessageDialog(null, "Insufficient Balance.");
+                    JOptionPane.showMessageDialog(null, "Insufficient Funds.", null, JOptionPane.ERROR_MESSAGE);
                 } else {
                     String num = String.format("%.2f", diff);
                     double newBalance = Double.parseDouble(num);
@@ -1857,7 +1890,7 @@ public class AdminPage extends javax.swing.JFrame {
 
                             transactionTable();
                             updateDetails();
-                            JOptionPane.showMessageDialog(null, "Withdraw Successful.");
+                            JOptionPane.showMessageDialog(null, "Withdrawal Successful.", null, JOptionPane.INFORMATION_MESSAGE);
                         } catch (SQLException e) {
                             JOptionPane.showMessageDialog(null, e);
                         }
@@ -1866,7 +1899,7 @@ public class AdminPage extends javax.swing.JFrame {
                     }
                 }
             } else {
-                JOptionPane.showMessageDialog(null, "Account number not found. Please enter a valid account number.");
+                JOptionPane.showMessageDialog(null, "Account number not found.", null, JOptionPane.ERROR_MESSAGE);
             }
         } catch (SQLException | ClassNotFoundException ex) {
             java.util.logging.Logger.getLogger(AdminPage.class.getName()).log(Level.SEVERE, null, ex);
@@ -1889,7 +1922,7 @@ public class AdminPage extends javax.swing.JFrame {
             String referenceID = generateRefID();
 
             if (sourceAccount.equals(destinationAccount)) {
-                JOptionPane.showMessageDialog(null, "Cannot transfer to your own account.");
+                JOptionPane.showMessageDialog(null, "Cannot transfer money to same account number.", null, JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -1900,7 +1933,7 @@ public class AdminPage extends javax.swing.JFrame {
             ResultSet rsDestAccount = pst5.executeQuery();
 
             if (!rsDestAccount.next()) {
-                JOptionPane.showMessageDialog(null, "Invalid destination account number.");
+                JOptionPane.showMessageDialog(null, "Account number not found.", null, JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -1937,7 +1970,6 @@ public class AdminPage extends javax.swing.JFrame {
                     pst3.setString(5, referenceID);
                     pst3.setDouble(6, convenienceFee);
                     pst3.executeUpdate();
-//                    transactionTable();
 
                     String sql4 = "INSERT INTO transactions (transaction_date, transaction_accNum, transaction_amount, transaction_type, reference_num, transaction_fee) VALUES (?,?,?,?,?,?)";
                     pst4 = conn.prepareStatement(sql4);
@@ -1950,12 +1982,13 @@ public class AdminPage extends javax.swing.JFrame {
                     pst4.executeUpdate();
                     transactionTable();
                     updateDetails();
-                    JOptionPane.showMessageDialog(null, "Transaction Success.");
+                    JOptionPane.showMessageDialog(null, "Tranfer Successful.", null, JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    JOptionPane.showMessageDialog(null, "Transfer amount must be between PHP 100 and PHP " + (currentBalance - convenienceFee) + " (including convenience fee).");
+                    JOptionPane.showMessageDialog(null, "Amount must be between PHP 100.00 and PHP " + (currentBalance - convenienceFee) + " (including convenience fee).",
+                            null, JOptionPane.WARNING_MESSAGE);
                 }
             } else {
-                JOptionPane.showMessageDialog(null, "Account number not found. Please enter a valid account number.");
+                JOptionPane.showMessageDialog(null, "Account number not found.", null, JOptionPane.ERROR_MESSAGE);
             }
         } catch (SQLException | ClassNotFoundException ex) {
             java.util.logging.Logger.getLogger(AdminPage.class.getName()).log(Level.SEVERE, null, ex);
@@ -2138,7 +2171,10 @@ public class AdminPage extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel35;
     private javax.swing.JLabel jLabel36;
     private javax.swing.JLabel jLabel37;
+    private javax.swing.JLabel jLabel38;
+    private javax.swing.JLabel jLabel39;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel41;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;

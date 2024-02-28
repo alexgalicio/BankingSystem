@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Random;
 import java.util.logging.Level;
@@ -20,7 +21,6 @@ public class UserPage extends javax.swing.JFrame {
     private final DatabaseConnection dc = new DatabaseConnection();
     private PreparedStatement pst, pst1, pst2, pst3, pst4, pst5;
     private ResultSet rs;
-//    public static UserMenu userMenu;
     private DefaultTableModel tableModel;
     private final double feePercentage = 0.05;
 
@@ -30,15 +30,15 @@ public class UserPage extends javax.swing.JFrame {
     }
 
     private void init() {
-        tableModel = new DefaultTableModel();
-        tableModel.addColumn("Date");
+        tableModel = new DefaultTableModel(); // creates a new instance of DefaultTableModel
+        tableModel.addColumn("Date"); // with columns data, amount, type, reference #
         tableModel.addColumn("Amount");
         tableModel.addColumn("Type");
         tableModel.addColumn("Reference #");
-        jTable1.setModel(tableModel);
+        jTable1.setModel(tableModel); // set jtable1 to use the tableModel
 
-        TableColumn column = jTable1.getColumnModel().getColumn(0);
-        column.setPreferredWidth(120);
+        TableColumn column = jTable1.getColumnModel().getColumn(0);// get the column 0
+        column.setPreferredWidth(120);  // and set with to 120, (timestamp is long)
 
         jTable1.setDefaultEditor(Object.class, null); // disable editing of cells
         loadTransactionHistory();
@@ -117,28 +117,29 @@ public class UserPage extends javax.swing.JFrame {
                 } else {
                     formattedAmount = "-";
                 }
+                
+                // ensures that the amount is formatted with two decimal places and is always positive
                 formattedAmount += String.format("%.2f", Math.abs(amount));
-                Object[] row = {timestamp, formattedAmount, type, referenceNum};
+                Object[] row = {timestamp, formattedAmount, type, referenceNum}; // create an object array 
 
-//                jTable1.getColumnModel().getColumn(1).setCellRenderer(new AmountCellRenderer());
                 jTable1.getTableHeader().setReorderingAllowed(false);
-                tableModel.addRow(row);
+                tableModel.addRow(row); // add the array row to table
             }
         } catch (SQLException | ClassNotFoundException ex) {
             JOptionPane.showMessageDialog(null, ex);
         }
     }
-
-    // generate reference number for transactions
-    private String generateRefID() {
-        StringBuilder refID = new StringBuilder("OOP");
+    
+    public String generateRefID() { // generate reference number for transactions
         Random random = new Random();
-        for (int i = 0; i < 4; i++) {
-            refID.append(random.nextInt(10));
-        }
-        refID.append("24");
+        int randomNumber = random.nextInt(10000); // 0 - 9999
+        String randomNumberString = String.format("%04d", randomNumber); // format into 4 digit string
 
-        return refID.toString();
+        LocalDate currentDate = LocalDate.now();
+        int lastTwoDigitsOfYear = currentDate.getYear() % 100; // get the last two digit of the year (24)
+        String yearString = String.format("%02d", lastTwoDigitsOfYear);
+
+        return "OOP" + randomNumberString + yearString; // reference id format (OOP (random numbers) 24)
     }
 
     private void updateBalanceLabel(double newBalance) {
@@ -154,7 +155,6 @@ public class UserPage extends javax.swing.JFrame {
         return formatter.format(date);
     }
 
-    // display transaction details
     private void setTransacDetails(String type, Double amount, Double fee, String timestamp, String transactionNumber) {
         lbl_message.setText(type);
         lbl_amount.setText("PHP " + String.format("%.2f", amount));
@@ -188,12 +188,14 @@ public class UserPage extends javax.swing.JFrame {
         lbl_balance1 = new javax.swing.JLabel();
         btn_deposit = new swing.Button();
         txt_depositAmount = new swing.NumericTextField();
+        jLabel41 = new javax.swing.JLabel();
         pnl_withdraw = new javax.swing.JPanel();
         btn_withdraw = new swing.Button();
         jLabel16 = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
         lbl_balance2 = new javax.swing.JLabel();
         txt_withdrawAmount = new swing.NumericTextField();
+        jLabel39 = new javax.swing.JLabel();
         pnl_transfer = new javax.swing.JPanel();
         btn_transfer = new swing.Button();
         jLabel18 = new javax.swing.JLabel();
@@ -423,6 +425,9 @@ public class UserPage extends javax.swing.JFrame {
 
         txt_depositAmount.setHint("PHP 0.00");
 
+        jLabel41.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
+        jLabel41.setText("From PHP 100.00 up to PHP 50,000.00 only.");
+
         javax.swing.GroupLayout pnl_depositLayout = new javax.swing.GroupLayout(pnl_deposit);
         pnl_deposit.setLayout(pnl_depositLayout);
         pnl_depositLayout.setHorizontalGroup(
@@ -430,6 +435,7 @@ public class UserPage extends javax.swing.JFrame {
             .addGroup(pnl_depositLayout.createSequentialGroup()
                 .addGap(40, 40, 40)
                 .addGroup(pnl_depositLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel41)
                     .addComponent(jLabel14)
                     .addGroup(pnl_depositLayout.createSequentialGroup()
                         .addGroup(pnl_depositLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
@@ -451,7 +457,9 @@ public class UserPage extends javax.swing.JFrame {
                     .addComponent(jLabel15)
                     .addComponent(lbl_balance1)
                     .addComponent(txt_depositAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 332, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel41)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 312, Short.MAX_VALUE)
                 .addComponent(btn_deposit, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(42, 42, 42))
         );
@@ -480,6 +488,9 @@ public class UserPage extends javax.swing.JFrame {
 
         txt_withdrawAmount.setHint("PHP 0.00");
 
+        jLabel39.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
+        jLabel39.setText("From PHP 100.00 up to PHP 50,000.00 only.");
+
         javax.swing.GroupLayout pnl_withdrawLayout = new javax.swing.GroupLayout(pnl_withdraw);
         pnl_withdraw.setLayout(pnl_withdrawLayout);
         pnl_withdrawLayout.setHorizontalGroup(
@@ -487,6 +498,7 @@ public class UserPage extends javax.swing.JFrame {
             .addGroup(pnl_withdrawLayout.createSequentialGroup()
                 .addGap(40, 40, 40)
                 .addGroup(pnl_withdrawLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel39)
                     .addComponent(jLabel16)
                     .addGroup(pnl_withdrawLayout.createSequentialGroup()
                         .addGroup(pnl_withdrawLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
@@ -508,7 +520,9 @@ public class UserPage extends javax.swing.JFrame {
                     .addComponent(jLabel17)
                     .addComponent(lbl_balance2)
                     .addComponent(txt_withdrawAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 332, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel39)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 312, Short.MAX_VALUE)
                 .addComponent(btn_withdraw, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(42, 42, 42))
         );
@@ -1201,8 +1215,8 @@ public class UserPage extends javax.swing.JFrame {
 
         String sql = "INSERT INTO transactions (transaction_date, transaction_accNum, transaction_amount, transaction_type, reference_num, transaction_fee) VALUES (?,?,?,?,?,?)";
         try {
-            if (depositAmount < 100 || depositAmount > 100000) {
-                JOptionPane.showMessageDialog(null, "Deposit amount must be between PHP 100 and 100,000.");
+            if (depositAmount < 100 || depositAmount > 50000) {
+                JOptionPane.showMessageDialog(null, "Amount must be between PHP 100.00 and PHP 50,000.00.", null, JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
@@ -1240,7 +1254,7 @@ public class UserPage extends javax.swing.JFrame {
                     }
 
                     loadTransactionHistory();
-                    JOptionPane.showMessageDialog(null, "Deposit Successful.");
+                    JOptionPane.showMessageDialog(null, "Deposit Successful.", null, JOptionPane.INFORMATION_MESSAGE);
                     setTransacDetails("Deposit Successful", depositAmount, 0.0, timestamp, referenceID);
                 }
             } catch (SQLException e) {
@@ -1262,8 +1276,8 @@ public class UserPage extends javax.swing.JFrame {
         String referenceID = generateRefID();
 
         try {
-            if (amount < 100 || amount > 100000) {
-                JOptionPane.showMessageDialog(null, "Withdraw amount must be between PHP 100 and 100,000.");
+            if (amount < 100 || amount > 50000) {
+                JOptionPane.showMessageDialog(null, "Amount must be between PHP 100.00 and PHP 50,000.00.", null, JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
@@ -1280,13 +1294,13 @@ public class UserPage extends javax.swing.JFrame {
                     String password = String.valueOf(pf.getPassword());
 
                     if (password == null ? rs.getString("password") != null : !password.equals(rs.getString("password"))) {
-                        JOptionPane.showMessageDialog(null, "Invalid password.");
+                        JOptionPane.showMessageDialog(null, "Incorrect password.", null, JOptionPane.ERROR_MESSAGE);
                     } else {
                         double currentBalance = rs.getDouble("account_balance");
                         double diff = currentBalance - withdrawAmount;
 
                         if (diff < 0) {
-                            JOptionPane.showMessageDialog(null, "Insufficient Balance.");
+                            JOptionPane.showMessageDialog(null, "Insufficient Funds.", null, JOptionPane.ERROR_MESSAGE);
                         } else {
                             String num = String.format("%.2f", diff);
                             double newBalance = Double.parseDouble(num);
@@ -1311,7 +1325,7 @@ public class UserPage extends javax.swing.JFrame {
                                     pst2.execute();
 
                                     loadTransactionHistory();
-                                    JOptionPane.showMessageDialog(null, "Withdraw Successful.");
+                                    JOptionPane.showMessageDialog(null, "Withdrawal Successful.", null, JOptionPane.INFORMATION_MESSAGE);
                                     setTransacDetails("Withdraw Successful", withdrawAmount, 0.0, timestamp, referenceID);
                                 } catch (SQLException e) {
                                     JOptionPane.showMessageDialog(null, e);
@@ -1342,7 +1356,7 @@ public class UserPage extends javax.swing.JFrame {
             String referenceID = generateRefID();
 
             if (sourceAccount.equals(destinationAccount)) {
-                JOptionPane.showMessageDialog(null, "Cannot transfer to your own account.");
+                JOptionPane.showMessageDialog(null, "You cannot send money to yourself.", null, JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -1353,7 +1367,7 @@ public class UserPage extends javax.swing.JFrame {
             ResultSet rsDestAccount = pst5.executeQuery();
 
             if (!rsDestAccount.next()) {
-                JOptionPane.showMessageDialog(null, "Invalid destination account number.");
+                JOptionPane.showMessageDialog(null, "Account number not found.", null, JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -1404,13 +1418,14 @@ public class UserPage extends javax.swing.JFrame {
                     pst4.executeUpdate();
 
                     updateBalanceLabel(newBalance);
-                    JOptionPane.showMessageDialog(null, "Transaction Success.");
+                    JOptionPane.showMessageDialog(null, "Tranfer Successful.", null, JOptionPane.INFORMATION_MESSAGE);
                     setTransacDetails("Successfully sent to " + destinationName, transferAmount, convenienceFee, timestamp, referenceID);
                 } else {
-                    JOptionPane.showMessageDialog(null, "Transfer amount must be between PHP 100 and PHP " + (currentBalance - convenienceFee) + " (including convenience fee).");
+                    JOptionPane.showMessageDialog(null, "Amount must be between PHP 100.00 and PHP " + (currentBalance - convenienceFee) + " (including convenience fee).",
+                            null, JOptionPane.WARNING_MESSAGE);
                 }
             } else {
-                JOptionPane.showMessageDialog(null, "Error retrieving balance information.");
+                JOptionPane.showMessageDialog(null, "Error retrieving balance information.", null, JOptionPane.ERROR_MESSAGE);
             }
         } catch (SQLException | ClassNotFoundException ex) {
             java.util.logging.Logger.getLogger(UserPage.class.getName()).log(Level.SEVERE, null, ex);
@@ -1427,7 +1442,7 @@ public class UserPage extends javax.swing.JFrame {
         try {
             String accountNumberStr = txt_CAN.getText();
             if (accountNumberStr.length() != 10 || !accountNumberStr.matches("\\d+")) {
-                JOptionPane.showMessageDialog(null, "Invalid Account Number. Please enter a 10-digit numeric account number.");
+                JOptionPane.showMessageDialog(null, "Please enter a valid 10-digit Account Number.", null, JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
@@ -1473,7 +1488,7 @@ public class UserPage extends javax.swing.JFrame {
                                 pst2.setDouble(6, convenienceFee);
                                 pst2.execute();
 
-                                JOptionPane.showMessageDialog(null, "Payment Successful.");
+                                JOptionPane.showMessageDialog(null, "Payment Successful.", null, JOptionPane.INFORMATION_MESSAGE);
                                 loadTransactionHistory();
                                 setTransacDetails("Payment Successful", amountPay, convenienceFee, timestamp, referenceID);
                             } catch (SQLException e) {
@@ -1483,7 +1498,7 @@ public class UserPage extends javax.swing.JFrame {
                             JOptionPane.showMessageDialog(null, e);
                         }
                     } else {
-                        JOptionPane.showMessageDialog(null, "Payment Failed.");
+                        JOptionPane.showMessageDialog(null, "Payment Failed.", null, JOptionPane.ERROR_MESSAGE);
                     }
                 }
             } catch (SQLException | ClassNotFoundException ex) {
@@ -1501,13 +1516,13 @@ public class UserPage extends javax.swing.JFrame {
         try {
             String accountNumberStr = txt_waterAccNum.getText();
             if (accountNumberStr.length() < 12 || accountNumberStr.length() > 14 || !accountNumberStr.matches("\\d+")) {
-                JOptionPane.showMessageDialog(null, "Invalid Account Number. Please enter a numeric account number with a length between 12 and 14 digits.");
+                JOptionPane.showMessageDialog(null, "Please enter a valid 12-14 Digit Account Number.", null, JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
             String name = txt_waterName.getText().trim();
             if (name.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Name cannot be empty. Please enter a valid name.");
+                JOptionPane.showMessageDialog(null, "Please enter a valid Account Name.", null, JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
@@ -1552,7 +1567,7 @@ public class UserPage extends javax.swing.JFrame {
                             pst2.setDouble(6, convenienceFee);
                             pst2.execute();
 
-                            JOptionPane.showMessageDialog(null, "Payment Successful.");
+                            JOptionPane.showMessageDialog(null, "Payment Successful.", null, JOptionPane.INFORMATION_MESSAGE);
                             loadTransactionHistory();
                             setTransacDetails("Payment Successful", amountPay, convenienceFee, timestamp, referenceID);
                         } catch (SQLException e) {
@@ -1562,7 +1577,7 @@ public class UserPage extends javax.swing.JFrame {
                         JOptionPane.showMessageDialog(null, e);
                     }
                 } else {
-                    JOptionPane.showMessageDialog(null, "Payment Failed.");
+                    JOptionPane.showMessageDialog(null, "Payment Failed.", null, JOptionPane.ERROR_MESSAGE);
                 }
             }
         } catch (SQLException | ClassNotFoundException ex) {
@@ -1580,13 +1595,13 @@ public class UserPage extends javax.swing.JFrame {
         try {
             String accountNumberStr = txt_wifiAccNum.getText();
             if (accountNumberStr.length() != 13 || !accountNumberStr.matches("\\d+")) {
-                JOptionPane.showMessageDialog(null, "Invalid Account Number. Please enter a 13-digit numeric account number.");
+                JOptionPane.showMessageDialog(null, "Please enter a 13-digit Account Number.", null, JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
             String name = txt_wifiName.getText().trim();
             if (name.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Name cannot be empty. Please enter a valid name.");
+                JOptionPane.showMessageDialog(null, "Please enter a valid Account Name.", null, JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
@@ -1631,7 +1646,7 @@ public class UserPage extends javax.swing.JFrame {
                             pst2.setDouble(6, convenienceFee);
                             pst2.execute();
 
-                            JOptionPane.showMessageDialog(null, "Payment Successful.");
+                            JOptionPane.showMessageDialog(null, "Payment Successful.", null, JOptionPane.INFORMATION_MESSAGE);
                             loadTransactionHistory();
                             setTransacDetails("Payment Successful", amountPay, convenienceFee, timestamp, referenceID);
                         } catch (SQLException e) {
@@ -1641,7 +1656,7 @@ public class UserPage extends javax.swing.JFrame {
                         JOptionPane.showMessageDialog(null, e);
                     }
                 } else {
-                    JOptionPane.showMessageDialog(null, "Payment Failed.");
+                    JOptionPane.showMessageDialog(null, "Payment Failed.", null, JOptionPane.ERROR_MESSAGE);
                 }
             }
         } catch (SQLException | ClassNotFoundException ex) {
@@ -1667,7 +1682,7 @@ public class UserPage extends javax.swing.JFrame {
 
             if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || streetAdd.isEmpty()
                     || zip.isEmpty() || brgy.isEmpty() || city.isEmpty() || prov.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Please fill in all the fields.");
+                JOptionPane.showMessageDialog(null, "Please fill in all the fields.", null, JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
@@ -1687,8 +1702,8 @@ public class UserPage extends javax.swing.JFrame {
             pst.setString(9, accNum);
             pst.execute();
 
-            JOptionPane.showMessageDialog(null, "Successfully changed details.");
-            lbl_greet.setText("Hello, " + firstName);
+            JOptionPane.showMessageDialog(null, "Successfully changed details.", null, JOptionPane.INFORMATION_MESSAGE);
+            lbl_greet.setText("Hello, " + firstName); // to update the name in greeting 
 
         } catch (SQLException | ClassNotFoundException ex) {
             java.util.logging.Logger.getLogger(UserPage.class.getName()).log(Level.SEVERE, null, ex);
@@ -1701,7 +1716,7 @@ public class UserPage extends javax.swing.JFrame {
             String newPassword = new String(txt_newPass.getPassword());
             String confirmPassword = new String(txt_conPass.getPassword());
             if (!newPassword.equals(confirmPassword)) {
-                JOptionPane.showMessageDialog(this, "Passwords don't match.");
+                JOptionPane.showMessageDialog(this, "Passwords don't match.", null, JOptionPane.ERROR_MESSAGE);
                 txt_conPass.setText("");
                 return;
             }
@@ -1714,14 +1729,14 @@ public class UserPage extends javax.swing.JFrame {
             pst.setString(2, accountNumber);
             pst.setString(3, currentPassword);
 
-            int rowsUpdated = pst.executeUpdate();
+            int rowsUpdated = pst.executeUpdate(); 
             if (rowsUpdated > 0) {
-                JOptionPane.showMessageDialog(this, "Password changed successfully.");
+                JOptionPane.showMessageDialog(this, "Password changed successfully.", null, JOptionPane.INFORMATION_MESSAGE);
                 txt_currPass.setText("");
                 txt_newPass.setText("");
                 txt_conPass.setText("");
             } else {
-                JOptionPane.showMessageDialog(this, "Wrong password. Please try again.");
+                JOptionPane.showMessageDialog(this, "Wrong password. Please try again.", null, JOptionPane.ERROR_MESSAGE);
                 txt_currPass.setText("");
             }
         } catch (HeadlessException | SQLException | ClassNotFoundException ex) {
@@ -1805,8 +1820,10 @@ public class UserPage extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel34;
     private javax.swing.JLabel jLabel36;
     private javax.swing.JLabel jLabel38;
+    private javax.swing.JLabel jLabel39;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel40;
+    private javax.swing.JLabel jLabel41;
     private javax.swing.JLabel jLabel42;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
