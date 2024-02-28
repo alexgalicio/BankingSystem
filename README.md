@@ -41,7 +41,7 @@
 
 | Transfer  | Pay Bills |
 | ------------- | ------------- |
-| ![](./screenshots/transfer.png)  | ![](./screenshots/payBills.png)  |
+| ![](./screenshots/transfer.png)  | ![](./screenshots/bills.png)  |
 
 | Settings  | Admin Page |
 | ------------- | ------------- |
@@ -49,11 +49,11 @@
 
 | Manage Accounts  | New Account |
 | ------------- | ------------- |
-| ![](./screenshots/manageAcc.png)  | ![](./screenshots/newAcc.png)  |
+| ![](./screenshots/manageAccount.png)  | ![](./screenshots/newAccount.png)  |
 
 | Edit Account  | Delete Account |
 | ------------- | ------------- |
-| ![](./screenshots/editAcc.png)  | ![](./screenshots/deleteAcc.png)  |
+| ![](./screenshots/editAccount.png)  | ![](./screenshots/deleteAccount.png)  |
 
 | Transactions  | Transaction Logs |
 | ------------- | ------------- |
